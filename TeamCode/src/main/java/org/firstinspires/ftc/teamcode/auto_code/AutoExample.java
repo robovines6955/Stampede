@@ -14,7 +14,7 @@ public class AutoExample extends OpMode {
     DriveTo driveTo;
     Robot robot;
     public float coords[] = new float[5];
-    // in the class variables
+    // This is the FIRST state for the State Machine
     String nextState = "actionStart";
     // we'll set this when we need to wait for an action to complete rather than
     // check if the lift or drive is busy.
@@ -40,39 +40,16 @@ public class AutoExample extends OpMode {
         drivePositionsBackstopRed.put("start", new double[]{12, -63, 90});
         drivePositionsBackstopBlue.put("start", new double[]{12, 63, -90});
 
-        drivePositionsAudienceRed.put("Prop Approach", new double[]{-36, -40, 90});
-        drivePositionsAudienceBlue.put("Prop Approach", new double[]{-36, 40, -90});
-        drivePositionsBackstopRed.put("Prop Approach", new double[]{12, -40, 90});
-        drivePositionsBackstopBlue.put("Prop Approach", new double[]{12, 40, -90});
+        drivePositionsAudienceRed.put("Position 1", new double[]{-36, -40, 90});
+        drivePositionsAudienceBlue.put("Position 1", new double[]{-36, 40, -90});
+        drivePositionsBackstopRed.put("Position 1", new double[]{12, -40, 90});
+        drivePositionsBackstopBlue.put("Position 1", new double[]{12, 40, -90});
+
         double ROBOT_TO_PIXEL_CENTER = 8.5;
-        drivePositionsAudienceRed.put("propLEFT", new double[]{-47.5 + ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), -30 - ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), 135});
-        drivePositionsAudienceRed.put("propMIDDLE", new double[]{-36, -24.5 - ROBOT_TO_PIXEL_CENTER, 90});
-        drivePositionsAudienceRed.put("propRIGHT", new double[]{-24.5 - ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), -30 - ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), 45});
-
-        drivePositionsBackstopRed.put("propLEFT", new double[]{0.5 + ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), -30 - ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), 135});
-        drivePositionsBackstopRed.put("propMIDDLE", new double[]{12, -24.5 - ROBOT_TO_PIXEL_CENTER, 90});
-        drivePositionsBackstopRed.put("propRIGHT", new double[]{23.5 - ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), -30 - ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), 45});
-
-        drivePositionsAudienceBlue.put("propLEFT", new double[]{-24.5 - ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), 30 + ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), -45});
-        drivePositionsAudienceBlue.put("propMIDDLE", new double[]{-36, 24.5 + ROBOT_TO_PIXEL_CENTER, -90});
-        drivePositionsAudienceBlue.put("propRIGHT", new double[]{-49 + ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), 30 + ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), -135});
-
-        drivePositionsBackstopBlue.put("propLEFT", new double[]{23.5 - ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), 30 + ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), -45});
-        drivePositionsBackstopBlue.put("propMIDDLE", new double[]{12, 24.5 + ROBOT_TO_PIXEL_CENTER, -90});
-        drivePositionsBackstopBlue.put("propRIGHT", new double[]{-1 + ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), 30 + ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), -135});
-
-        drivePositionsAudienceRed.put("propApproachLEFT", new double[]{-38, -40, 135});
-        drivePositionsAudienceRed.put("propApproachMIDDLE", new double[]{-36, -40, 90});
-        drivePositionsAudienceRed.put("propApproachRIGHT", new double[]{-36, -40, 45});
-        drivePositionsBackstopRed.put("propApproachLEFT", new double[]{12, -40, 135});
-        drivePositionsBackstopRed.put("propApproachMIDDLE", new double[]{12, -40, 90});
-        drivePositionsBackstopRed.put("propApproachRIGHT", new double[]{14, -40, 45});
-        drivePositionsAudienceBlue.put("propApproachLEFT", new double[]{-36, 40, -45});
-        drivePositionsAudienceBlue.put("propApproachMIDDLE", new double[]{-36, 40, -90});
-        drivePositionsAudienceBlue.put("propApproachRIGHT", new double[]{-38, 40, -135});
-        drivePositionsBackstopBlue.put("propApproachLEFT", new double[]{14, 40, -45});
-        drivePositionsBackstopBlue.put("propApproachMIDDLE", new double[]{12, 40, -90});
-        drivePositionsBackstopBlue.put("propApproachRIGHT", new double[]{12, 40, -135});
+        drivePositionsAudienceRed.put("Position 2", new double[]{-47.5 + ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), -30 - ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), 135});
+        drivePositionsBackstopRed.put("Position 2", new double[]{0.5 + ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), -30 - ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), 135});
+        drivePositionsAudienceBlue.put("Position 2", new double[]{-24.5 - ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), 30 + ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), -45});
+        drivePositionsBackstopBlue.put("Position 2", new double[]{23.5 - ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), 30 + ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), -45});
     }
 
     @Override
@@ -159,18 +136,20 @@ public class AutoExample extends OpMode {
         return false;
     }
 
+    // This is the State Machine, it's the "steps" the robot will follow
     public void actionStart() {
-        driveTo.setTargetPosition(drivePositions.get("Prop Approach"), 1, false);
-        nextState = "actionPlaceProp";
+        driveTo.setTargetPosition(drivePositions.get("Position 1"), 1, false);
+        // Name what the next action should be
+        nextState = "actionStep2";
     }
 
-    public void actionPlaceProp() {
-        driveTo.setTargetPosition(drivePositions.get("prop"), .4);
-        nextState = "actionPropAvoidPole";
+    public void actionStep2() {
+        driveTo.setTargetPosition(drivePositions.get("Position 2"), .4);
+        nextState = "actionStep3";
     }
 
-    public void actionPropAvoidPole() {
-        driveTo.setTargetPosition(drivePositions.get("propApproach"), 1, false);
+    public void actionStep3() {
+        driveTo.setTargetPosition(drivePositions.get("Position 1"), 1, false);
         nextState = "actionStop";
     }
 
