@@ -1,8 +1,11 @@
 package org.firstinspires.ftc.teamcode.auto_code;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import org.firstinspires.ftc.teamcode.utility_code.Robot;
+
 import org.firstinspires.ftc.teamcode.utility_code.DriveTo;
+import org.firstinspires.ftc.teamcode.utility_code.Robot;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -11,9 +14,10 @@ import java.util.HashMap;
 public class AutoExample extends OpMode {
     boolean isRed = false;
     boolean isAudience = false;
+    boolean recentIsRedChange = false;
+    boolean recentAudienceChange = false;
     DriveTo driveTo;
     Robot robot;
-    public float coords[] = new float[5];
     // This is the FIRST state for the State Machine
     String nextState = "actionStart";
     // we'll set this when we need to wait for an action to complete rather than
@@ -23,50 +27,73 @@ public class AutoExample extends OpMode {
     //for where coords are on the field for our different auto modes (diff start positions, ect.)
     HashMap<String, double[]> drivePositionsAudienceRed = new HashMap<>();
     HashMap<String, double[]> drivePositionsAudienceBlue = new HashMap<>();
-    HashMap<String, double[]> drivePositionsBackstopRed = new HashMap<>();
-    HashMap<String, double[]> drivePositionsBackstopBlue = new HashMap<>();
+    HashMap<String, double[]> drivePositionsBackRed = new HashMap<>();
+    HashMap<String, double[]> drivePositionsBackBlue = new HashMap<>();
     HashMap<String, double[]> drivePositions;
 
     @Override
     public void init() {
         robot = new Robot();
-        robot.init(hardwareMap, true);
+        robot.init(hardwareMap);
 
         driveTo = new DriveTo(robot, telemetry);
 
         //x, y, heading for start positions
-        drivePositionsAudienceRed.put("start", new double[]{-36, -63, 90});
-        drivePositionsAudienceBlue.put("start", new double[]{-36, 63, -90});
-        drivePositionsBackstopRed.put("start", new double[]{12, -63, 90});
-        drivePositionsBackstopBlue.put("start", new double[]{12, 63, -90});
+        drivePositionsAudienceRed.put("start", new double[]{-12, -63, 90});
+        drivePositionsAudienceBlue.put("start", new double[]{-12, 63, -90});
+        drivePositionsBackRed.put("start", new double[]{12, -63, 90});
+        drivePositionsBackBlue.put("start", new double[]{12, 63, -90});
 
         drivePositionsAudienceRed.put("Position 1", new double[]{-36, -40, 90});
         drivePositionsAudienceBlue.put("Position 1", new double[]{-36, 40, -90});
-        drivePositionsBackstopRed.put("Position 1", new double[]{12, -40, 90});
-        drivePositionsBackstopBlue.put("Position 1", new double[]{12, 40, -90});
+        drivePositionsBackRed.put("Position 1", new double[]{12, -40, 90});
+        drivePositionsBackBlue.put("Position 1", new double[]{36, 40, -90});
 
-        double ROBOT_TO_PIXEL_CENTER = 8.5;
-        drivePositionsAudienceRed.put("Position 2", new double[]{-47.5 + ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), -30 - ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), 135});
-        drivePositionsBackstopRed.put("Position 2", new double[]{0.5 + ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), -30 - ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), 135});
-        drivePositionsAudienceBlue.put("Position 2", new double[]{-24.5 - ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), 30 + ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), -45});
-        drivePositionsBackstopBlue.put("Position 2", new double[]{23.5 - ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), 30 + ROBOT_TO_PIXEL_CENTER / Math.sqrt(2), -45});
+        drivePositionsAudienceRed.put("Position 2", new double[]{24, -48, 135});
+        drivePositionsAudienceBlue.put("Position 2", new double[]{-48, 60, 0});
+        drivePositionsBackRed.put("Position 2", new double[]{48, -60, 0});
+        drivePositionsBackBlue.put("Position 2", new double[]{-24, 48, 135 + 180});
+
+        drivePositionsAudienceRed.put("Position 3", new double[]{48, -60, 135});
+        drivePositionsAudienceBlue.put("Position 3", new double[]{-48, -48, 0});
+        drivePositionsBackRed.put("Position 3", new double[]{48, -48, 0});
+        drivePositionsBackBlue.put("Position 3", new double[]{-48, 60, 135 + 180});
     }
 
     @Override
     public void init_loop() {
+        if (gamepad1.dpad_up) {        //This is our select start position
+            if (!recentIsRedChange) {
+                isRed = !isRed;
+                recentIsRedChange = true;
+            }
+        } else {
+            recentIsRedChange = false;
+        }
+        if (gamepad1.dpad_left) {      //This is our select audience position
+            if (!recentAudienceChange) {
+                isAudience = !isAudience;
+                recentAudienceChange = true;
+            }
+        } else {
+            recentAudienceChange = false;
+        }
+
+        telemetry.addData("Team (up)", "%s", isRed ? "RED" : "BLUE");
+        telemetry.addData("Position (left)", "%s", isAudience ? "Audience" : "Back");
     }
 
     @Override
     public void start() {
-        //Pick our hashmap for color and side
+        //Pick from our hashmap for color and side
         if (isAudience && isRed) {
             drivePositions = drivePositionsAudienceRed;
         } else if (isAudience && !isRed) {
             drivePositions = drivePositionsAudienceBlue;
         } else if (!isAudience && isRed) {
-            drivePositions = drivePositionsBackstopRed;
+            drivePositions = drivePositionsBackRed;
         } else {
-            drivePositions = drivePositionsBackstopBlue;
+            drivePositions = drivePositionsBackBlue;
         }
 
         //setting start position, 0 is x, 1 is y, 2 is heading
@@ -138,18 +165,19 @@ public class AutoExample extends OpMode {
 
     // This is the State Machine, it's the "steps" the robot will follow
     public void actionStart() {
-        driveTo.setTargetPosition(drivePositions.get("Position 1"), 1, false);
+        driveTo.setTargetPosition(drivePositions.get("Position 1"), .25);
         // Name what the next action should be
         nextState = "actionStep2";
     }
 
     public void actionStep2() {
-        driveTo.setTargetPosition(drivePositions.get("Position 2"), .4);
+        driveTo.setTargetPosition(drivePositions.get("Position 2"), .25, false);
+        wait = getRuntime() + 5;
         nextState = "actionStep3";
     }
 
     public void actionStep3() {
-        driveTo.setTargetPosition(drivePositions.get("Position 1"), 1, false);
+        driveTo.setTargetPosition(drivePositions.get("Position 3"), .5);
         nextState = "actionStop";
     }
 

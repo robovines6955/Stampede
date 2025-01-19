@@ -2,22 +2,16 @@ package org.firstinspires.ftc.teamcode.utility_code;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.LUDecomposition;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-
-import java.util.HashMap;
-
 
 /**
  * This is NOT an opmode.
@@ -34,17 +28,18 @@ public class Robot {
      * FORWARD_ENCODER_COUNTS_PER_INCH, RIGHT_ENCODER_COUNTS_PER_INCH, CW_ENCODER_COUNTS_PER_DEGREE are used when using wheel encoders (not odometry pods)
      * <p>
      * We drove 120 inches or 3600 degrees 3 times. These were the wheel encoder counts for each of the wheels (keep them all positive).
-     * We divide by the distance traveled to get the average encoder count per unit per wheel.
+     * We divide by the number of data points and the distance traveled to get the average encoder count per unit per wheel.
      * You might get negative encoder values but use the absolute value in the equation.
      */
-    public static double FORWARD_ENCODER_COUNTS_PER_INCH = ((4253 + 4245 + 4251 + 4245 + 4265 + 4271 + 4279 + 4271 + 4291 + 4285 + 4296 + 4301) / 12.0) / 120.0;
+    public static double FORWARD_ENCODER_COUNTS_PER_INCH = ((3358 + 3439 + 3362 + 3416) / 4.0) / 96.0;
     //All values are positive when we strafe right.
-    public static double RIGHT_ENCODER_COUNTS_PER_INCH = ((4872 + 4872 + 4890 + 4922 + 4943 + 4932 + 4956 + 4951 + 4850 + 4857 + 4818 + 4831) / 12.0) / 120.0;
+    public static double RIGHT_ENCODER_COUNTS_PER_INCH = ((4109 + 4056 + 3899 + 3884) / 4.0) / 96.0;
     //We rotated 10 times twice. Rear wheels were negative when rotation was clockwise.
-    public static double CW_ENCODER_COUNTS_PER_DEGREE = ((30373 + 30397 + 30461 + 30448 + 30558 + 30576 + 30568 + 30581) / 8.0) / 10.0 / 360;
+    public static double CW_ENCODER_COUNTS_PER_DEGREE = ((28859 + 28843 + 28849 + 28840) / 4.0) / 10.0 / 360;
+
     /**
-     * Total left odometry pod encoder count when traveling a decided forward distance (IF its negative, keep the negative sign)
-     */
+      * Total left odometry pod encoder count when traveling a decided forward distance (IF its negative, keep the negative sign)
+      */
     static double LEFT_ENCODER_FORWARD_VALUE = -31297 + -31422 + -31945 + -31571;
     /**
      * Total right odometry pod encoder count when traveling a decided forward distance (IF its negative, keep the negative sign)
@@ -58,8 +53,6 @@ public class Robot {
      * Decided distance from encoder forward value tests (we drove forward 96in) times number of tests (in inches)
      */
     static double FORWARD_TRAVEL = 96 * 4;
-
-    //vals are whatever, left, right, middle
     /**
      * Total left odometry pod encoder count when traveling a decided strafe distance (IF its negative, keep the negative sign)
      */
@@ -100,12 +93,14 @@ public class Robot {
     public static double[] FORWARD_PARAMS = new LUDecomposition(odomat).getSolver().solve(new ArrayRealVector(new double[]{FORWARD_TRAVEL, 0, 0})).toArray();
     public static double[] STRAFE_PARAMS = new LUDecomposition(odomat).getSolver().solve(new ArrayRealVector(new double[]{0, STRAFE_TRAVEL, 0})).toArray();
     public static double[] CW_TURN_PARAMS = new LUDecomposition(odomat).getSolver().solve(new ArrayRealVector(new double[]{0, 0, CW_TURN_DEGREES})).toArray();
+
     public AngleTrackerIMU angleTracker;
 
     int flLastPosition = 0;
     int frLastPosition = 0;
     int rlLastPosition = 0;
     int rrLastPosition = 0;
+
     public double xFieldPos = 0, yFieldPos = 0, headingField = 0;
 
     /* local OpMode members. */
@@ -147,49 +142,31 @@ public class Robot {
     }
 
     public void initWheelHardware() {
-        //was 12,10,0,0
-        DriveFrontLeft = setUpEncoderMotor("fl", DcMotor.Direction.FORWARD, 12, 10, 0.0, 5.0, false);
-        DriveFrontRight = setUpEncoderMotor("fr", DcMotor.Direction.REVERSE, 12, 10, 0.0, 5.0, false);
-        DriveRearLeft = setUpEncoderMotor("rl", DcMotor.Direction.FORWARD, 12, 10, 0.0, 5.0, false);
-        DriveRearRight = setUpEncoderMotor("rr", DcMotor.Direction.REVERSE, 12, 10, 0.0, 5.0, false);
+        DriveFrontLeft = setUpEncoderMotor("fl", DcMotor.Direction.FORWARD, 12, 10, 0.0, 5.0, true);
+        DriveFrontRight = setUpEncoderMotor("fr", DcMotor.Direction.FORWARD, 12, 10, 0.0, 5.0, true);
+        DriveRearLeft = setUpEncoderMotor("rl", DcMotor.Direction.REVERSE, 12, 10, 0.0, 5.0, true);
+        DriveRearRight = setUpEncoderMotor("rr", DcMotor.Direction.REVERSE, 12, 10, 0.0, 5.0, true);
     }
 
     /**
      * Initializes the angle tracker (IMU)
      */
     public void initTracker() {
-        // angleTracker = new AngleTrackerIMU(this);
         angleTracker = new AngleTrackerIMU(hwMap.get(IMU.class, "imu"));
-    }
-
-    public void initOdometry() {
-
-    }
-
-    public void initOtherHardware() {
-
     }
 
     /**
      * Initialize standard Hardware interfaces.
      *
      * @param ahwMap     Hardware map from op mode
-     * @param initWheels Boolean that is true as long as you want the wheels to move
      */
-    public void init(HardwareMap ahwMap, boolean initWheels) {
+    public void init(HardwareMap ahwMap) {
         // Save reference to Hardware map
         hwMap = ahwMap;
         // Define and Initialize Motors
-        if (initWheels) {
-            initWheelHardware();
-            initOdometry();
-            initTracker();
-        }
-        initOtherHardware();
-    }
+        initWheelHardware();
 
-    public void init(HardwareMap ahwMap) {
-        init(ahwMap, true);
+        initTracker();
     }
 
     /**
@@ -254,6 +231,15 @@ public class Robot {
         int rlPositionChange = rlPosition - rlLastPosition;
         int rrPositionChange = rrPosition - rrLastPosition;
 
+        //how far has robot moved, how many inches and degrees changed (forward, strafe, turn)
+        //inches traveled forward
+        double forwardDistance = ((flPositionChange - frPositionChange - rlPositionChange + rrPositionChange) / 4.0) / FORWARD_ENCODER_COUNTS_PER_INCH;
+        //inches traveled right
+        double rightDistance = ((flPositionChange + frPositionChange + rlPositionChange + rrPositionChange) / 4.0) / RIGHT_ENCODER_COUNTS_PER_INCH;
+        //turn angle in degrees
+        double cwTurnAngle = ((flPositionChange + frPositionChange - rlPositionChange - rrPositionChange) / 4.0) / CW_ENCODER_COUNTS_PER_DEGREE;
+
+        /* This was from odopods
         int rightPod = rlPositionChange;
         int leftPod = frPositionChange;
         int midPod = rrPositionChange;
@@ -268,7 +254,8 @@ public class Robot {
         double forwardDistance = FORWARD_PARAMS[0] * leftPod + FORWARD_PARAMS[1] * midPod + FORWARD_PARAMS[2] * rightPod;
         double rightDistance = STRAFE_PARAMS[0] * leftPod + STRAFE_PARAMS[1] * midPod + STRAFE_PARAMS[2] * rightPod;
         double cwTurnAngle = CW_TURN_PARAMS[0] * leftPod + CW_TURN_PARAMS[1] * midPod + CW_TURN_PARAMS[2] * rightPod;
-
+         */
+        
         //updating new last position
         flLastPosition = flPosition;
         frLastPosition = frPosition;
