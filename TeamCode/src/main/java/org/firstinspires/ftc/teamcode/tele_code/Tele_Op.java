@@ -125,6 +125,7 @@ public class Tele_Op extends OpMode {
         x2 *= speedfactor;
         robot.drive(y1, x1, x2, telemetry);
 
+        // TODO: add a telemetry update section to the odometry code, expand, and move this to it
         //SparkFunOTOS.Pose2D pos = robot.myOtos.getPosition();
 
         double totalRotationInDeg = robot.angleTracker.getOrientation();

@@ -105,7 +105,7 @@ public class AutoExample extends OpMode {
 
     @Override
     public void loop() {
-
+        // TODO: We should combine these like we did in our most recent code
         double[] positionChange = robot.positionChange();
         robot.updateFieldPosition(positionChange[0], positionChange[1], positionChange[2]);
         telemetry.addData("Field Position (Coordinates)", "%.2f, %.2f, %.2f", robot.xFieldPos, robot.yFieldPos, robot.headingField);
