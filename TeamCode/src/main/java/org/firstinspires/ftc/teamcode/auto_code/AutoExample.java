@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.utility_code.DriveTo;
-import org.firstinspires.ftc.teamcode.utility_code.Robot;
+import org.firstinspires.ftc.teamcode.utility_code.Stampede;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -17,7 +17,7 @@ public class AutoExample extends OpMode {
     boolean recentIsRedChange = false;
     boolean recentAudienceChange = false;
     DriveTo driveTo;
-    Robot robot;
+    Stampede stampede;
     // This is the FIRST state for the State Machine
     String nextState = "actionStart";
     // we'll set this when we need to wait for an action to complete rather than
@@ -33,10 +33,10 @@ public class AutoExample extends OpMode {
 
     @Override
     public void init() {
-        robot = new Robot();
-        robot.init(hardwareMap);
+        stampede = new Stampede();
+        stampede.init(hardwareMap);
 
-        driveTo = new DriveTo(robot, telemetry);
+        driveTo = new DriveTo(stampede, telemetry);
 
         //x, y, heading for start positions
         drivePositionsAudienceRed.put("start", new double[]{-12, -63, 90});
@@ -97,19 +97,17 @@ public class AutoExample extends OpMode {
         }
 
         //setting start position, 0 is x, 1 is y, 2 is heading
-        robot.xFieldPos = drivePositions.get("start")[0];
-        robot.yFieldPos = drivePositions.get("start")[1];
-        robot.headingField = drivePositions.get("start")[2];
-        robot.angleTracker.setOrientation(robot.headingField);
+        stampede.xFieldPos = drivePositions.get("start")[0];
+        stampede.yFieldPos = drivePositions.get("start")[1];
+        stampede.headingField = drivePositions.get("start")[2];
+        stampede.angleTracker.setOrientation(stampede.headingField);
     }
 
     @Override
     public void loop() {
-        // TODO: We should combine these like we did in our most recent code
-        double[] positionChange = robot.positionChange();
-        robot.updateFieldPosition(positionChange[0], positionChange[1], positionChange[2]);
-        telemetry.addData("Field Position (Coordinates)", "%.2f, %.2f, %.2f", robot.xFieldPos, robot.yFieldPos, robot.headingField);
-        telemetry.addData("IMU Orientation", "IMU %.2f", robot.angleTracker.getOrientation());
+        stampede.updateFieldPosition();
+        telemetry.addData("Field Position (Coordinates)", "%.2f, %.2f, %.2f", stampede.xFieldPos, stampede.yFieldPos, stampede.headingField);
+        telemetry.addData("IMU Orientation", "IMU %.2f", stampede.angleTracker.getOrientation());
         telemetry.addData("Next action", nextState);
 
         driveTo.sendTelemetry(telemetry);
@@ -140,7 +138,7 @@ public class AutoExample extends OpMode {
 
     @Override
     public void stop() {
-        robot.drive(0.0, 0.0, 0.0, telemetry);
+        stampede.drive(0.0, 0.0, 0.0, telemetry);
         driveTo.areWeThereYet = true;
     }
 
@@ -182,7 +180,7 @@ public class AutoExample extends OpMode {
     }
 
     public void actionStop() {
-        robot.drive(0.0, 0.0, 0.0, telemetry);
+        stampede.drive(0.0, 0.0, 0.0, telemetry);
         driveTo.areWeThereYet = true;
         nextState = "actionDone";
     }

@@ -34,13 +34,13 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.utility_code.Robot;
+import org.firstinspires.ftc.teamcode.utility_code.Stampede;
 
 @TeleOp(name = "TeleOp")
 public class Tele_Op extends OpMode {
 
     /* Declare OpMode members. */
-    Robot robot;
+    Stampede stampede;
     double x1, y1, x2;
     double speedfactor = 0.5;
     double driveAngle = 0;
@@ -48,7 +48,7 @@ public class Tele_Op extends OpMode {
     ElapsedTime holdTimer = new ElapsedTime();
 
     public void initRobot() {
-        robot = new Robot();
+        stampede = new Stampede();
     }
 
     /*
@@ -60,8 +60,8 @@ public class Tele_Op extends OpMode {
          * The init() method of the hardware class does all the work here
          */
         initRobot();
-        robot.init(hardwareMap);
-        robot.angleTracker.setOrientation(180);
+        stampede.init(hardwareMap);
+        stampede.angleTracker.setOrientation(180);
         //robot.configureOtos(telemetry);
 
         telemetry.addData("Say", "Hello Driver");
@@ -89,7 +89,6 @@ public class Tele_Op extends OpMode {
      */
     @Override
     public void loop() {
-
         //turn correcting
         if (Math.abs(gamepad1.left_stick_y) > .2) {
             y1 = -gamepad1.left_stick_y;
@@ -101,19 +100,19 @@ public class Tele_Op extends OpMode {
         if (Math.abs(gamepad1.right_stick_x) > .2) {
             // are we turning?  If so, remember our current heading
             x2 = gamepad1.right_stick_x;
-            driveAngle = robot.angleTracker.getOrientation();
+            driveAngle = stampede.angleTracker.getOrientation();
             driveAngleCheckTime = getRuntime() + 0.25;
 
         } else if (Math.abs(gamepad1.left_stick_x) > .2 || Math.abs(gamepad1.left_stick_y) > .2 &&
                 getRuntime() > driveAngleCheckTime) {
             // we aren't turning, but we are moving.  Rotate back to the original heading when we started moving
-            if (Math.abs(robot.angleDifference(robot.angleTracker.getOrientation(), driveAngle)) > 0.5) {
-                x2 = robot.angleDifference(robot.angleTracker.getOrientation(), driveAngle) / 25;
+            if (Math.abs(stampede.angleDifference(stampede.angleTracker.getOrientation(), driveAngle)) > 0.5) {
+                x2 = stampede.angleDifference(stampede.angleTracker.getOrientation(), driveAngle) / 25;
                 corrected = true;
             }
         } else {
             // we aren't moving at all, note which way we are facing
-            driveAngle = robot.angleTracker.getOrientation();
+            driveAngle = stampede.angleTracker.getOrientation();
         }
         if (gamepad1.left_trigger > .4) {
             speedfactor = 0.25;
@@ -123,18 +122,11 @@ public class Tele_Op extends OpMode {
         x1 *= speedfactor;
         y1 *= speedfactor;
         x2 *= speedfactor;
-        robot.drive(y1, x1, x2, telemetry);
+        stampede.drive(y1, x1, x2, telemetry);
+        telemetry.addData("Autoturning Active", corrected ? "Yes" : "No");
 
-        // TODO: add a telemetry update section to the odometry code, expand, and move this to it
-        //SparkFunOTOS.Pose2D pos = robot.myOtos.getPosition();
-
-        double totalRotationInDeg = robot.angleTracker.getOrientation();
-        telemetry.addData("Heading", "%5.2f", ((totalRotationInDeg % 360) + 360) % 360);
-        telemetry.addData("corrected", corrected ? "Yes" : "No");
-        //telemetry.addData("X coordinate", pos.x);
-        //telemetry.addData("Y coordinate", pos.y);
-        //telemetry.addData("Heading angle", pos.h);
-
+        stampede.updateFieldPosition();
+        stampede.reportTelemetry(telemetry);
         telemetry.update();
     }
 

@@ -55,7 +55,7 @@ public class DriveTo {
     double lastTimeCheck = 0;
     double lastMovementTime;
     double[] lastDistanceToDrive;
-    Robot robot;
+    Stampede stampede;
     Telemetry telemetry;
     double maxSpeedFactor = .5;
 
@@ -68,8 +68,8 @@ public class DriveTo {
     double startTime = System.currentTimeMillis() * 0.001;
     public boolean areWeThereYet = true;
 
-    public DriveTo(Robot robot, Telemetry telemetry) {
-        this.robot = robot;
+    public DriveTo(Stampede stampede, Telemetry telemetry) {
+        this.stampede = stampede;
         this.telemetry = telemetry;
     }
 
@@ -179,7 +179,7 @@ public class DriveTo {
      * @param telemetry
      */
     public void sendTelemetry(Telemetry telemetry) {
-        double[] distanceToDrive = robot.getTravelValues(xTarget, yTarget, headingTarget);
+        double[] distanceToDrive = stampede.getTravelValues(xTarget, yTarget, headingTarget);
         telemetry.addData("distanceToDrive", "%4.2f %4.2f %4.2f", distanceToDrive[0], distanceToDrive[1], distanceToDrive[2]);
     }
 
@@ -194,13 +194,13 @@ public class DriveTo {
         if (areWeThereYet) {
             return;
         }
-        double[] distanceToDrive = robot.getTravelValues(xTarget, yTarget, headingTarget);
+        double[] distanceToDrive = stampede.getTravelValues(xTarget, yTarget, headingTarget);
         //when robot is close enough to target distance it stops driving
         if (stopBetweenTarget && Math.abs(distanceToDrive[0]) < CLOSE_ENOUGH_DISTANCE &&
                 Math.abs(distanceToDrive[1]) < CLOSE_ENOUGH_DISTANCE &&
                 Math.abs(distanceToDrive[2]) < CLOSE_ENOUGH_ANGLE) {
             areWeThereYet = true;
-            robot.drive(0, 0, 0, telemetry);
+            stampede.drive(0, 0, 0, telemetry);
             wasStopped = true;
             return;
         }
@@ -228,7 +228,7 @@ public class DriveTo {
             didRobotMove = (
                     Math.abs(distanceToDrive[0] - lastDistanceToDrive[0]) > MIN_MOVE_DIST ||
                             Math.abs(distanceToDrive[1] - lastDistanceToDrive[1]) > MIN_MOVE_DIST ||
-                            Math.abs(robot.angleDifference(distanceToDrive[2], lastDistanceToDrive[2])) > MIN_MOVE_ANGLE);
+                            Math.abs(stampede.angleDifference(distanceToDrive[2], lastDistanceToDrive[2])) > MIN_MOVE_ANGLE);
         }
 
         if (didRobotMove) {
@@ -237,7 +237,7 @@ public class DriveTo {
             //leave the loop
             areWeThereYet = true;
             wasStopped = true;
-            robot.drive(0, 0, 0, telemetry);
+            stampede.drive(0, 0, 0, telemetry);
             return;
         }
         //taking largest value (max)
@@ -268,7 +268,7 @@ public class DriveTo {
         lastDistanceToDrive = distanceToDrive;
 
         //drive
-        robot.drive(forwardSpeed, rightSpeed, cwTurnSpeed, telemetry);
+        stampede.drive(forwardSpeed, rightSpeed, cwTurnSpeed, telemetry);
     }
 }
 

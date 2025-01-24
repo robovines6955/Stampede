@@ -3,7 +3,7 @@
 Welcome!
 
 This module, TeamCode, is the place where you will write/paste the code for your team's
-robot controller App. This module is currently empty (a clean slate) but the
+stampede controller App. This module is currently empty (a clean slate) but the
 process for adding OpModes is straightforward.
 
 ## Creating your own OpModes
@@ -31,7 +31,7 @@ Basic:  	This is a minimally functional OpMode used to illustrate the skeleton/s
             of a particular style of OpMode.  These are bare bones examples.
 
 Sensor:    	This is a Sample OpMode that shows how to use a specific sensor.
-            It is not intended to drive a functioning robot, it is simply showing the minimal code
+            It is not intended to drive a functioning stampede, it is simply showing the minimal code
             required to read and display the sensor values.
 
 Robot:	    This is a Sample OpMode that assumes a simple two-motor (differential) drive base.
@@ -42,7 +42,7 @@ Concept:	This is a sample OpMode that illustrates performing a specific function
             These may be complex, but their operation should be explained clearly in the comments,
             or the comments should reference an external doc, guide or tutorial.
             Each OpMode should try to only demonstrate a single concept so they are easy to
-            locate based on their name.  These OpModes may not produce a drivable robot.
+            locate based on their name.  These OpModes may not produce a drivable stampede.
 
 After the prefix, other conventions will apply:
 
@@ -51,7 +51,7 @@ After the prefix, other conventions will apply:
 * Concept class names are constructed as:   Concept - Topic - OpModetype
 
 Once you are familiar with the range of samples available, you can choose one to be the
-basis for your own robot.  In all cases, the desired sample(s) needs to be copied into
+basis for your own stampede.  In all cases, the desired sample(s) needs to be copied into
 your TeamCode module to be used.
 
 This is done inside Android Studio directly, using the following steps:
@@ -68,7 +68,7 @@ This is done inside Android Studio directly, using the following steps:
     Choose something meaningful based on the purpose of this class.
     Start with a capital letter, and remember that there may be more similar classes later.
 
-Once your copy has been created, you should prepare it for use on your robot.
+Once your copy has been created, you should prepare it for use on your stampede.
 This is done by adjusting the OpMode's name, and enabling it to be displayed on the
 Driver Station's OpMode list.
 

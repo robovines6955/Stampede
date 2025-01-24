@@ -21,13 +21,19 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
  * <p>
  * This class can be used to define all the specific hardware for a single robot.
  */
-public class Robot {
+public class Stampede {
     /* Public OpMode members. */
-    public DcMotorEx DriveFrontLeft = null;
-    public DcMotorEx DriveFrontRight = null;
-    public DcMotorEx DriveRearLeft = null;
-    public DcMotorEx DriveRearRight = null;
-    public SparkFunOTOS OTOS = null;
+    public DcMotorEx driveFrontLeft = null;
+    public DcMotorEx driveFrontRight = null;
+    public DcMotorEx driveRearLeft = null;
+    public DcMotorEx driveRearRight = null;
+    public DcMotorEx odopodLeft = null;
+    public DcMotorEx odopodRight = null;
+    public DcMotorEx odopodMiddle = null;
+
+    public SparkFunOTOS otos = null;
+
+    boolean hasWheelEncoders = false;
     /**
      * FORWARD_ENCODER_COUNTS_PER_INCH, RIGHT_ENCODER_COUNTS_PER_INCH, CW_ENCODER_COUNTS_PER_DEGREE are used when using wheel encoders (not odometry pods)
      * <p>
@@ -42,8 +48,8 @@ public class Robot {
     public static double CW_ENCODER_COUNTS_PER_DEGREE = ((28859 + 28843 + 28849 + 28840) / 4.0) / 10.0 / 360;
 
     /**
-      * Total left odometry pod encoder count when traveling a decided forward distance (IF its negative, keep the negative sign)
-      */
+     * Total left odometry pod encoder count when traveling a decided forward distance (IF its negative, keep the negative sign)
+     */
     static double LEFT_ENCODER_FORWARD_VALUE = -31297 + -31422 + -31945 + -31571;
     /**
      * Total right odometry pod encoder count when traveling a decided forward distance (IF its negative, keep the negative sign)
@@ -104,6 +110,9 @@ public class Robot {
     int frLastPosition = 0;
     int rlLastPosition = 0;
     int rrLastPosition = 0;
+    int odoLeftLastPosition = 0;
+    int odoRightLastPosition = 0;
+    int odoMiddleLastPosition = 0;
 
     public double xFieldPos = 0, yFieldPos = 0, headingField = 0;
 
@@ -111,7 +120,7 @@ public class Robot {
     HardwareMap hwMap = null;
 
     /* Constructor */
-    public Robot() {
+    public Stampede() {
 
     }
 
@@ -145,11 +154,19 @@ public class Robot {
         return drive;
     }
 
-    public void initWheelHardware() {
-        DriveFrontLeft = setUpEncoderMotor("fl", DcMotor.Direction.FORWARD, 12, 10, 0.0, 5.0, true);
-        DriveFrontRight = setUpEncoderMotor("fr", DcMotor.Direction.FORWARD, 12, 10, 0.0, 5.0, true);
-        DriveRearLeft = setUpEncoderMotor("rl", DcMotor.Direction.REVERSE, 12, 10, 0.0, 5.0, true);
-        DriveRearRight = setUpEncoderMotor("rr", DcMotor.Direction.REVERSE, 12, 10, 0.0, 5.0, true);
+    /**
+     * Define and initialize wheel motors.
+     *
+     * @param withEncoder does your robot have wheel encoders?
+     */
+    public void initWheelHardware(boolean withEncoder) {
+        // These PID values worked for us (using REV ultraplanetary motors)
+        driveFrontLeft = setUpEncoderMotor("fl", DcMotor.Direction.FORWARD, 12, 10, 0.0, 5.0, withEncoder);
+        driveFrontRight = setUpEncoderMotor("fr", DcMotor.Direction.FORWARD, 12, 10, 0.0, 5.0, withEncoder);
+        driveRearLeft = setUpEncoderMotor("rl", DcMotor.Direction.REVERSE, 12, 10, 0.0, 5.0, withEncoder);
+        driveRearRight = setUpEncoderMotor("rr", DcMotor.Direction.REVERSE, 12, 10, 0.0, 5.0, withEncoder);
+
+        hasWheelEncoders = withEncoder;
     }
 
     /**
@@ -162,28 +179,32 @@ public class Robot {
     /**
      * Initialize standard Hardware interfaces.
      *
-     * @param ahwMap     Hardware map from op mode
+     * @param ahwMap Hardware map from op mode
      */
     public void init(HardwareMap ahwMap) {
-        // we should rename this method initOdometry, and pass hwmap to initWheelHardware and initTracker
-        // We should state that if they have odopods, we use them, if not and they have otos we use that,
-        // otherwise, we must have wheel encoders.  We can make the imu optional.  We could have wheel
-        // encoders AND odopods
-
         // Save reference to Hardware map
         hwMap = ahwMap;
-        // Define and Initialize Motors
-        initWheelHardware();
-        //TODO:
-        // if odopods, initialize them like we do for motors, but use their own names.
-        // DcMotorEx odopod1 = hwMap.get(DcMotorEx.class, "odopod1");
-        /*
-        OTOS = hwMap.get(SparkFunOTOS.class, "otos");
-        configureOtos(-7.125, 0, -90, 3600.0 / (3600.0 + 15.6), 96.0 / 92.6);
+
+        // If using wheel encoders pass true, otherwise pass false
+        initWheelHardware(true);
+        // If you have odopods enable this section
+        if (false) {
+            odopodLeft = hwMap.get(DcMotorEx.class, "odoleft");
+            odopodRight = hwMap.get(DcMotorEx.class, "odoright");
+            odopodMiddle = hwMap.get(DcMotorEx.class, "odomid");
+        }
+        // If using SparkFun otos use this section
+        if (false) {
+            otos = hwMap.get(SparkFunOTOS.class, "otos");
+            //put otos calibration values here
+            configureOtos(-7.125, 0, -90, 3600.0 / (3600.0 + 15.6), 96.0 / 92.6);
             SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(xFieldPos, yFieldPos, headingField);
-            OTOS.setPosition(currentPosition);
-        */
-        initTracker();
+            otos.setPosition(currentPosition);
+        }
+        // You can use the REV controller's IMU for better orientation
+        if (true) {
+            initTracker();
+        }
     }
 
     /**
@@ -211,115 +232,119 @@ public class Robot {
             speedrr /= max;
         }
 
-        DriveFrontLeft.setPower(speedfl);
-        DriveRearLeft.setPower(speedrl);
-        DriveFrontRight.setPower(speedfr);
-        DriveRearRight.setPower(speedrr);
+        driveFrontLeft.setPower(speedfl);
+        driveRearLeft.setPower(speedrl);
+        driveFrontRight.setPower(speedfr);
+        driveRearRight.setPower(speedrr);
 
         telemetry.addData("position", "%9d:%9d:%9d:%9d",
-                DriveFrontLeft.getCurrentPosition(),
-                DriveFrontRight.getCurrentPosition(),
-                DriveRearLeft.getCurrentPosition(),
-                DriveRearRight.getCurrentPosition()
+                driveFrontLeft.getCurrentPosition(),
+                driveFrontRight.getCurrentPosition(),
+                driveRearLeft.getCurrentPosition(),
+                driveRearRight.getCurrentPosition()
         );
         telemetry.addData("speed fl, fr, rl, rr", "%5.2f:%5.2f:%5.2f:%5.2f",
                 speedfl, speedfr, speedrl, speedrr);
-        telemetry.addData("v1", DriveFrontLeft.getVelocity());
-        telemetry.addData("v2", DriveFrontRight.getVelocity());
-        telemetry.addData("v3", DriveRearLeft.getVelocity());
-        telemetry.addData("v4", DriveRearRight.getVelocity());
+        telemetry.addData("v1", driveFrontLeft.getVelocity());
+        telemetry.addData("v2", driveFrontRight.getVelocity());
+        telemetry.addData("v3", driveRearLeft.getVelocity());
+        telemetry.addData("v4", driveRearRight.getVelocity());
 
     }
 
     /**
-     * How far the robot has moved since it last checked
-     *
-     * @return array of forward (in inches), strafeRight (in inches), and turnCW (in degrees)
+     * Update the robot's position since the last check.
      */
-    public double[] positionChange() {
-        int flPosition = DriveFrontLeft.getCurrentPosition();
-        int frPosition = DriveFrontRight.getCurrentPosition();
-        int rlPosition = DriveRearLeft.getCurrentPosition();
-        int rrPosition = DriveRearRight.getCurrentPosition();
+    public void updateFieldPosition() {
+        double forwardDistance = 0;
+        double rightDistance = 0;
+        double cwTurnAngle = 0;
 
-        //how much did we move since we last asked
-        int flPositionChange = flPosition - flLastPosition;
-        int frPositionChange = frPosition - frLastPosition;
-        int rlPositionChange = rlPosition - rlLastPosition;
-        int rrPositionChange = rrPosition - rrLastPosition;
+        // if we aren't using odopos or otos, we must use wheel encoders
+        if (odopodLeft == null && otos == null) {
+            int flPosition = driveFrontLeft.getCurrentPosition();
+            int frPosition = driveFrontRight.getCurrentPosition();
+            int rlPosition = driveRearLeft.getCurrentPosition();
+            int rrPosition = driveRearRight.getCurrentPosition();
 
-        //how far has robot moved, how many inches and degrees changed (forward, strafe, turn)
-        //inches traveled forward
-        double forwardDistance = ((flPositionChange - frPositionChange - rlPositionChange + rrPositionChange) / 4.0) / FORWARD_ENCODER_COUNTS_PER_INCH;
-        //inches traveled right
-        double rightDistance = ((flPositionChange + frPositionChange + rlPositionChange + rrPositionChange) / 4.0) / RIGHT_ENCODER_COUNTS_PER_INCH;
-        //turn angle in degrees
-        double cwTurnAngle = ((flPositionChange + frPositionChange - rlPositionChange - rrPositionChange) / 4.0) / CW_ENCODER_COUNTS_PER_DEGREE;
+            //how much did we move since we last asked
+            int flPositionChange = flPosition - flLastPosition;
+            int frPositionChange = frPosition - frLastPosition;
+            int rlPositionChange = rlPosition - rlLastPosition;
+            int rrPositionChange = rrPosition - rrLastPosition;
 
-        /* This was from odopods
-        int rightPod = rlPositionChange;
-        int leftPod = frPositionChange;
-        int midPod = rrPositionChange;
+            //how far has robot moved, how many inches and degrees changed (forward, strafe, turn)
+            //inches traveled forward
+            forwardDistance = ((flPositionChange - frPositionChange - rlPositionChange + rrPositionChange) / 4.0) / FORWARD_ENCODER_COUNTS_PER_INCH;
+            //inches traveled right
+            rightDistance = ((flPositionChange + frPositionChange + rlPositionChange + rrPositionChange) / 4.0) / RIGHT_ENCODER_COUNTS_PER_INCH;
+            //turn angle in degrees
+            cwTurnAngle = ((flPositionChange + frPositionChange - rlPositionChange - rrPositionChange) / 4.0) / CW_ENCODER_COUNTS_PER_DEGREE;
 
-        //how far has robot moved, how many inches and degrees changed (forward, strafe, turn)
-        //turn angle in degrees
-        //double cwTurnAngle = ((flPositionChange + frPositionChange - rlPositionChange - rrPositionChange) / 4.0) / CW_ENCODER_COUNTS_PER_DEGREE;
-        //inches traveled forward
-        //double forwardDistance = ((flPositionChange - frPositionChange - rlPositionChange + rrPositionChange) / 4.0) / FORWARD_ENCODER_COUNTS_PER_INCH;
-        //inches traveled right
-        //double rightDistance = ((flPositionChange + frPositionChange + rlPositionChange + rrPositionChange) / 4.0) / RIGHT_ENCODER_COUNTS_PER_INCH;
-        double forwardDistance = FORWARD_PARAMS[0] * leftPod + FORWARD_PARAMS[1] * midPod + FORWARD_PARAMS[2] * rightPod;
-        double rightDistance = STRAFE_PARAMS[0] * leftPod + STRAFE_PARAMS[1] * midPod + STRAFE_PARAMS[2] * rightPod;
-        double cwTurnAngle = CW_TURN_PARAMS[0] * leftPod + CW_TURN_PARAMS[1] * midPod + CW_TURN_PARAMS[2] * rightPod;
-         */
-        
-        //updating new last position
-        flLastPosition = flPosition;
-        frLastPosition = frPosition;
-        rlLastPosition = rlPosition;
-        rrLastPosition = rrPosition;
+            //updating new last position
+            flLastPosition = flPosition;
+            frLastPosition = frPosition;
+            rlLastPosition = rlPosition;
+            rrLastPosition = rrPosition;
+        } else if (odopodLeft != null) {
+            int rightPosition = odopodRight.getCurrentPosition();
+            int leftPosition = odopodLeft.getCurrentPosition();
+            int midPosition = odopodMiddle.getCurrentPosition();
 
-        // OTOS
-        // TODO:
-        /*
-        SparkFunOTOS.Pose2D currPos = OTOS.getPosition();
-        xFieldPos = currPos.x;
-        yFieldPos = currPos.y;
-        headingField = currPos.h;
-        */
+            //how much did we move since we last asked
+            int rightPod = rightPosition - odoRightLastPosition;
+            int leftPod = leftPosition - odoLeftLastPosition;
+            int midPod = midPosition - odoMiddleLastPosition;
 
-        //this is where the IMU thinks heading is
-        headingField = angleTracker.getOrientation();
+            //how far has robot moved, how many inches and degrees changed (forward, strafe, turn)
+            //turn angle in degrees
+            //double cwTurnAngle = ((flPositionChange + frPositionChange - rlPositionChange - rrPositionChange) / 4.0) / CW_ENCODER_COUNTS_PER_DEGREE;
+            //inches traveled forward
+            //double forwardDistance = ((flPositionChange - frPositionChange - rlPositionChange + rrPositionChange) / 4.0) / FORWARD_ENCODER_COUNTS_PER_INCH;
+            //inches traveled right
+            //double rightDistance = ((flPositionChange + frPositionChange + rlPositionChange + rrPositionChange) / 4.0) / RIGHT_ENCODER_COUNTS_PER_INCH;
+            forwardDistance = FORWARD_PARAMS[0] * leftPod + FORWARD_PARAMS[1] * midPod + FORWARD_PARAMS[2] * rightPod;
+            rightDistance = STRAFE_PARAMS[0] * leftPod + STRAFE_PARAMS[1] * midPod + STRAFE_PARAMS[2] * rightPod;
+            cwTurnAngle = CW_TURN_PARAMS[0] * leftPod + CW_TURN_PARAMS[1] * midPod + CW_TURN_PARAMS[2] * rightPod;
 
-        return new double[]{forwardDistance, rightDistance, cwTurnAngle};
-    }
+            odoRightLastPosition = rightPosition;
+            odoLeftLastPosition = leftPosition;
+            odoMiddleLastPosition = midPosition;
+        } else {
+            //if we don't have wheel encoders or odopods, we must have an otos
+            SparkFunOTOS.Pose2D currPos = otos.getPosition();
+            xFieldPos = currPos.x;
+            yFieldPos = currPos.y;
+            headingField = currPos.h;
+        }
+        // apply the position change from wheel encoders or odopods
+        if (forwardDistance != 0.0 || rightDistance != 0.0 || cwTurnAngle != 0.0) {
+            //same as double averageHeading = (headingField + (headingField - cwTurn)) / 2;
+            double avgHeading = headingField - cwTurnAngle / 2;
+            headingField -= cwTurnAngle;
+            //effect of forward movement
+            xFieldPos += forwardDistance * Math.cos(Math.toRadians(avgHeading));
+            yFieldPos += forwardDistance * Math.sin(Math.toRadians(avgHeading));
+            //effect of right movement
+            xFieldPos += rightDistance * Math.sin(Math.toRadians(avgHeading));
+            yFieldPos -= rightDistance * Math.cos(Math.toRadians(avgHeading));
+        }
 
-    /**
-     * @param forward forward travel distance (in inches)
-     * @param right   right travel distance (in inches)
-     * @param cwTurn  turn travel angle (in degrees)
-     */
-    public void updateFieldPosition(double forward, double right, double cwTurn) {
-        //same as double averageHeading = (headingField + (headingField - cwTurn)) / 2;
-        double avgHeading = headingField - cwTurn / 2;
-        headingField -= cwTurn;
-        //effect of forward movement
-        xFieldPos += forward * Math.cos(Math.toRadians(avgHeading));
-        yFieldPos += forward * Math.sin(Math.toRadians(avgHeading));
-        //effect of right movement
-        xFieldPos += right * Math.sin(Math.toRadians(avgHeading));
-        yFieldPos -= right * Math.cos(Math.toRadians(avgHeading));
-
+        // if you are using the imu, it overrules orientation from other methods
+        if (angleTracker != null) {
+            //this is where the IMU thinks heading is
+            headingField = angleTracker.getOrientation();
+        }
     }
 
     /**
      * Compute the distance the robot needs to travel from the current field position to a target
      * position.
      *
-     * @param xTargetPos    Target position in field coordinates in inches.
-     * @param yTargetPos    Target position in field coordinates in inches.
-     * @param headingTarget Target heading in field coordinates in degrees.
-     * @return Distances to travel forward in inches, right in inches, and turn clockwise in degrees.
+     * @param xTargetPos    Target position in field coordinates (in inches).
+     * @param yTargetPos    Target position in field coordinates (in inches).
+     * @param headingTarget Target heading in field coordinates (in degrees).
+     * @return Distances to travel forward (in inches), right (in inches), and turn clockwise (in degrees).
      */
     public double[] getTravelValues(double xTargetPos, double yTargetPos, double headingTarget) {
         double deltaX = xTargetPos - xFieldPos;
@@ -343,8 +368,8 @@ public class Robot {
     }
 
     /**
-     * @param angle1 in degrees
-     * @param angle2 in degrees
+     * @param angle1 (in degrees).
+     * @param angle2 (in degrees).
      * @return angle 1 - angle 2 out of 360 (in degrees)
      */
     public double angleDifference(double angle1, double angle2) {
@@ -358,42 +383,40 @@ public class Robot {
         return angleDiff;
     }
 
-    //TODO:
-    // add a setCurrentPosition method that would do
-    /*
-        robot.xFieldPos = drivePositions.get("start")[0];
-        robot.yFieldPos = drivePositions.get("start")[1];
-        robot.headingField = drivePositions.get("start")[2];
-        robot.angleTracker.setOrientation(robot.headingField);
-        if (robot.OTOS != null){
-            SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(robot.xFieldPos, robot.yFieldPos, robot.headingField);
-            robot.OTOS.setPosition(currentPosition);
-        }
+    /**
+     * Sets the robot's field position to a known set of coordinates.
+     *
+     * @param x Field position in inches.
+     * @param y Field position in inches.
+     * @param heading Field orientation in degrees.
      */
-    //TODO:
-    // we might want a getCurrentPosition method that would just return the field values
+    public void setFieldPosition(double x, double y, double heading) {
+        xFieldPos = x;
+        yFieldPos = y;
+        headingField = heading;
+        if (angleTracker != null) {
+            angleTracker.setOrientation(headingField);
+        }
+        if (otos != null) {
+            SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(xFieldPos, yFieldPos, headingField);
+            otos.setPosition(currentPosition);
+        }
+    }
 
     /**
      * @return maximum drive speed out of all the motors
      */
     public double currentAbsDriveSpeed() {
         return Math.max(
-                Math.max(Math.abs(DriveFrontLeft.getPower()), Math.abs(DriveFrontRight.getPower())),
-                Math.max(Math.abs(DriveRearLeft.getPower()), Math.abs(DriveRearRight.getPower()))
+                Math.max(Math.abs(driveFrontLeft.getPower()), Math.abs(driveFrontRight.getPower())),
+                Math.max(Math.abs(driveRearLeft.getPower()), Math.abs(driveRearRight.getPower()))
         );
     }
 
-    // copied from the OTOS example, but adjusted to run as part of the robot class
-    private void configureOtos() {
-        // Set the desired units for linear and angular measurements. Can be either
-        // meters or inches for linear, and radians or degrees for angular. If not
-        // set, the default is inches and degrees. Note that this setting is not
-        // persisted in the sensor, so you need to set at the start of all your
-        // OpModes if using the non-default value.
-        // myOtos.setLinearUnit(DistanceUnit.METER);
-        OTOS.setLinearUnit(DistanceUnit.INCH);
-        // myOtos.setAngularUnit(AnguleUnit.RADIANS);
-        OTOS.setAngularUnit(AngleUnit.DEGREES);
+    public void configureOtos(double x, double y, double h, double angularScalar, double linearScalar) {
+        // Set the desired units for linear and angular measurements
+        otos.setLinearUnit(DistanceUnit.INCH);
+        otos.setAngularUnit(AngleUnit.DEGREES);
 
         // Assuming you've mounted your sensor to a robot and it's not centered,
         // you can specify the offset for the sensor relative to the center of the
@@ -406,8 +429,10 @@ public class Robot {
         // clockwise (negative rotation) from the robot's orientation, the offset
         // would be {-5, 10, -90}. These can be any value, even the angle can be
         // tweaked slightly to compensate for imperfect mounting (eg. 1.3 degrees).
-        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(0, 0, 0);
-        OTOS.setOffset(offset);
+        //SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(-6.9, -.9, 180);
+        //Consider y axis being 0 we think.
+        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(x, y, h);
+        otos.setOffset(offset);
 
         // Here we can set the linear and angular scalars, which can compensate for
         // scaling issues with the sensor measurements. Note that as of firmware
@@ -425,30 +450,64 @@ public class Robot {
         // multiple speeds to get an average, then set the linear scalar to the
         // inverse of the error. For example, if you move the robot 100 inches and
         // the sensor reports 103 inches, set the linear scalar to 100/103 = 0.971
-        OTOS.setLinearScalar(1.0);
-        OTOS.setAngularScalar(1.0);
+        otos.setAngularScalar(angularScalar);
+        otos.setLinearScalar(linearScalar);
 
         // The IMU on the OTOS includes a gyroscope and accelerometer, which could
         // have an offset. Note that as of firmware version 1.0, the calibration
         // will be lost after a power cycle; the OTOS performs a quick calibration
         // when it powers up, but it is recommended to perform a more thorough
-        // calibration at the start of all your OpModes. Note that the sensor must
+        // calibration at the start of all your programs. Note that the sensor must
         // be completely stationary and flat during calibration! When calling
         // calibrateImu(), you can specify the number of samples to take and whether
         // to wait until the calibration is complete. If no parameters are provided,
         // it will take 255 samples and wait until done; each sample takes about
         // 2.4ms, so about 612ms total
-        OTOS.calibrateImu();
+        otos.calibrateImu();
 
         // Reset the tracking algorithm - this resets the position to the origin,
         // but can also be used to recover from some rare tracking errors
-        OTOS.resetTracking();
+        otos.resetTracking();
 
         // After resetting the tracking, the OTOS will report that the robot is at
         // the origin. If your robot does not start at the origin, or you have
         // another source of location information (eg. vision odometry), you can set
         // the OTOS location to match and it will continue to track from there.
         SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(0, 0, 0);
-        OTOS.setPosition(currentPosition);
+        otos.setPosition(currentPosition);
+
+        // Get the hardware and firmware version
+        SparkFunOTOS.Version hwVersion = new SparkFunOTOS.Version();
+        SparkFunOTOS.Version fwVersion = new SparkFunOTOS.Version();
+        otos.getVersionInfo(hwVersion, fwVersion);
     }
-}
+
+    /**
+     * Log information that you will need for calibration in Tele_Op.
+     *
+     * @param telemetry
+     */
+    public void reportTelemetry(Telemetry telemetry){
+        if(hasWheelEncoders){
+            telemetry.addData("Wheel Encoder Postions", "fl: %d, fr: %d, rl: %d, rr: %d",
+                    driveFrontLeft.getCurrentPosition(), driveFrontRight.getCurrentPosition(),
+                    driveRearLeft.getCurrentPosition(), driveRearRight.getCurrentPosition());
+        }
+        if(odopodLeft != null){
+            telemetry.addData("Odo Pod Postions", "left: %d, middle: %d, right: %d",
+                    odopodLeft.getCurrentPosition(), odopodMiddle.getCurrentPosition(),
+                    odopodRight.getCurrentPosition());
+        }
+        if(otos != null){
+            SparkFunOTOS.Pose2D pos = otos.getPosition();
+            telemetry.addData("OTOS Postions", "x: %4.2f, y: %4.2f, heading: %4.2f",
+                    pos.x, pos.y, pos.h);
+        }
+        if (angleTracker != null) {
+            double totalRotationInDeg = angleTracker.getOrientation();
+            telemetry.addData("Heading", "%5.2f", ((totalRotationInDeg % 360) + 360) % 360);
+        }
+        telemetry.addData("Field Postion", "x: %4.2f, y: %4.2f, heading: %4.2f",
+                xFieldPos, yFieldPos, headingField);
+    }
+    }

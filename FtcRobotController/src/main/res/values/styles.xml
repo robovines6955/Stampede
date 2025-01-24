@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- This is a placeholder for adding future style-specific content in the robot controller only -->
+<!-- This is a placeholder for adding future style-specific content in the stampede controller only -->
 <resources>
 
     <style name="AppThemeRedRC" parent="AppTheme.Red">
