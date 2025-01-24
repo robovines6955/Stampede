@@ -5,6 +5,7 @@ import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
@@ -218,9 +219,9 @@ public class Stampede {
      */
     public void drive(double forward, double strafeRight, double turnCW, Telemetry telemetry) {
 
-        double speedfr = -forward + strafeRight + turnCW;
+        double speedfr = forward - strafeRight - turnCW;
         double speedfl = forward + strafeRight + turnCW;
-        double speedrl = -forward + strafeRight - turnCW;
+        double speedrl = forward - strafeRight + turnCW;
         double speedrr = forward + strafeRight - turnCW;
 
         double max = Math.max(Math.max(Math.abs(speedfl), Math.abs(speedfr)), Math.max(Math.abs(speedrl), Math.abs(speedrr)));
@@ -236,20 +237,6 @@ public class Stampede {
         driveRearLeft.setPower(speedrl);
         driveFrontRight.setPower(speedfr);
         driveRearRight.setPower(speedrr);
-
-        telemetry.addData("position", "%9d:%9d:%9d:%9d",
-                driveFrontLeft.getCurrentPosition(),
-                driveFrontRight.getCurrentPosition(),
-                driveRearLeft.getCurrentPosition(),
-                driveRearRight.getCurrentPosition()
-        );
-        telemetry.addData("speed fl, fr, rl, rr", "%5.2f:%5.2f:%5.2f:%5.2f",
-                speedfl, speedfr, speedrl, speedrr);
-        telemetry.addData("v1", driveFrontLeft.getVelocity());
-        telemetry.addData("v2", driveFrontRight.getVelocity());
-        telemetry.addData("v3", driveRearLeft.getVelocity());
-        telemetry.addData("v4", driveRearRight.getVelocity());
-
     }
 
     /**
