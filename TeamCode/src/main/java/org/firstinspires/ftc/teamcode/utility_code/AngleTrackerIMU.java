@@ -11,9 +11,9 @@ public class AngleTrackerIMU {
     private double resetVal = 0;
 
     /**
-     * This is the construction method
+     * This is the construction method.
      *
-     * @param imu An instance of an "imu" device.
+     * @param imu Instance of an "imu" device
      */
     // public AngleTrackerIMU(CenterStageBot robot) {
     public AngleTrackerIMU(IMU imu) {
@@ -34,7 +34,7 @@ public class AngleTrackerIMU {
     /**
      * Get the current orientation of the IMU in degrees.
      *
-     * @return The angle in degrees.
+     * @return Angle (in degrees)
      */
     public double getOrientation() {
         double val = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES) - resetVal;  //Gets angle in degrees (negatives and over 360 included)
@@ -46,7 +46,7 @@ public class AngleTrackerIMU {
     /**
      *  This zeros the angle the robot is facing (robot centric) because we can't change the
      *  actual zero for imu (IMU decides where it thinks it zero when its turned on) so when we
-     *  reset it to our zero its probably a different # for the IMU
+     *  reset it to our zero its probably a different number for the IMU.
      */
     public void resetOrientation() {
         resetVal = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
@@ -54,9 +54,9 @@ public class AngleTrackerIMU {
 
     /**
      * This sets the robot's angle in relation to the field's coordinates (field centric)
-     * We use this to set the angle at the start in auto (:-D)
+     * We use this to set the angle at the start in auto.
      *
-     * @param heading An angle in degrees the robot is currently facing on the field.
+     * @param heading An angle in degrees the robot is currently facing on the field
      */
     public void setOrientation(double heading) {
         resetOrientation();

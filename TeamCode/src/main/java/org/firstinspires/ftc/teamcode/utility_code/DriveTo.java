@@ -10,29 +10,29 @@ public class DriveTo {
     boolean stopBetweenTarget;
     boolean wasStopped = true;
 
-    /** Distance from target when robot starts slowing down (in inches) */
+    /** Distance from target when robot starts slowing down (in inches). */
     //the P value of PID is 1/FULL_SPEED_DISTANCE, making FULL_SPEED_DISTANCE bigger makes the P decrease
     public static double FULL_SPEED_DISTANCE = 12;
 
-    /** Angle from the target when the robot starts slowing down (in degrees)   */
+    /** Angle from the target when the robot starts slowing down (in degrees).   */
     public static double FULL_SPEED_ANGLE = 20;
 
-    /** Distance from target, when not stopping between actions, that it starts slowing down at (in inches) */
+    /** Distance from target, when not stopping between actions, that it starts slowing down at (in inches). */
     public static double NO_STOP_FULL_SPEED_DISTANCE = 12;
 
-    /** Angle from target, when not stopping between actions, that it starts slowing down at (in degrees)   */
+    /** Angle from target, when not stopping between actions, that it starts slowing down at (in degrees).   */
     public static double NO_STOP_FULL_SPEED_ANGLE = 20;
 
-    /** Distance from target where the robot is close enough and stops (in inches)  */
+    /** Distance from target where the robot is close enough and stops (in inches).  */
     public static double CLOSE_ENOUGH_DISTANCE = .25;
 
-    /** Angle from target where the robot is close enough and stops (in degrees)    */
+    /** Angle from target where the robot is close enough and stops (in degrees).    */
     public static double CLOSE_ENOUGH_ANGLE = 1;
 
-    /** Distance from target where the robot is close enough, when not stopping between targets, and moves on to the next action (in inches)    */
+    /** Distance from target where the robot is close enough, when not stopping between targets, and moves on to the next action (in inches). */
     public static double NO_STOP_CLOSE_ENOUGH_DISTANCE = 1;
 
-    /** Angle from target where the robot is close enough, when not stopping between targets, and moves on to the next action (in degrees)  */
+    /** Angle from target where the robot is close enough, when not stopping between targets, and moves on to the next action (in degrees). */
     public static double NO_STOP_CLOSE_ENOUGH_ANGLE = 3;
 
     /** When stopped before starting an action, the time it takes to speed up to maxSpeedFactor (in seconds)    */
@@ -59,11 +59,11 @@ public class DriveTo {
     Telemetry telemetry;
     double maxSpeedFactor = .5;
 
-    /** To prevent stalling when going slow while not strafing (wheels have to go a certain speed in order to overcome friction)   */
+    /** To prevent stalling when going slow while not strafing (wheels have to go a certain speed in order to overcome friction). */
     //if robot stalls then increase MIN_MOTOR_SPEED (wheels have to go a certain speed in order to overcome friction)
     public static double MIN_MOTOR_SPEED = .1;
 
-    /** To prevent stalling when going slow while strafing (more friction when strafing so a higher minimum motor speed) */
+    /** To prevent stalling when going slow while strafing (more friction when strafing so a higher minimum motor speed). */
     public static double MIN_STRAFE_SPEED = .25;
     double startTime = System.currentTimeMillis() * 0.001;
     public boolean areWeThereYet = true;
@@ -80,7 +80,7 @@ public class DriveTo {
      */
 
     /**
-     * FOR COORDINATES: center of the field is the origin, if you are standing in the Red Alliance box looking at the field its like a normal coordinate system
+     * FOR COORDINATES: center of the field is the origin, if you are standing in the Red Alliance box looking at the field its like a normal coordinate system.
      *           (Blue Alliance)
      *                    +y
      *                    |
@@ -107,7 +107,7 @@ public class DriveTo {
     }
 
     /**
-     * Below is used if there is an array () versus above target position is used if 3 doubles ([0], [1], [2])
+     * Below is used if there is an array () versus above target position is used if 3 doubles ([0], [1], [2]).
      *
      * @param position array for xTarget, yTarget, headingTarget
      */
@@ -116,7 +116,7 @@ public class DriveTo {
     }
 
     /**
-     * Set the target position with the default speed (MaxSpeedFactor)
+     * Set the target position with the default speed (MaxSpeedFactor).
      *
      * @param x
      * @param y
@@ -174,7 +174,7 @@ public class DriveTo {
     }
 
     /**
-     * Get the robot's distance to drive and reporting telemetry
+     * Get the robot's distance to drive and reporting telemetry.
      *
      * @param telemetry
      */
@@ -184,11 +184,9 @@ public class DriveTo {
     }
 
     /**
-     * get the robot's distance to drive,
-     * then determine if the robot needs to stop,
-     * what speed the robot needs to travel at (slow down/speed up),
-     * update time,
-     * and finally set the lastDistanceToDrive to the currentDistanceToDrive
+     * Get the robot's distance to drive, then determine if the robot needs to stop, what speed the robot
+     * needs to travel at (slow down/speed up), update time, and finally set the lastDistanceToDrive to the
+     * currentDistanceToDrive.
      */
     public void updateDrive() {
         if (areWeThereYet) {
@@ -271,4 +269,3 @@ public class DriveTo {
         stampede.drive(forwardSpeed, rightSpeed, cwTurnSpeed, telemetry);
     }
 }
-

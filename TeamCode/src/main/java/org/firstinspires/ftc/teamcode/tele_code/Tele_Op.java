@@ -61,8 +61,8 @@ public class Tele_Op extends OpMode {
          */
         initRobot();
         stampede.init(hardwareMap);
+        // You can set the robot's starting orientation
         stampede.angleTracker.setOrientation(180);
-        //robot.configureOtos(telemetry);
 
         telemetry.addData("Say", "Hello Driver");
         telemetry.update();
@@ -137,4 +137,3 @@ public class Tele_Op extends OpMode {
     public void stop() {
     }
 }
-

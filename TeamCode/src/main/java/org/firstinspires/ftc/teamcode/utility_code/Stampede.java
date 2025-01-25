@@ -19,7 +19,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 /**
  * This is NOT an opmode.
- * <p>
+ *
  * This class can be used to define all the specific hardware for a single robot.
  */
 public class Stampede {
@@ -36,66 +36,65 @@ public class Stampede {
 
     boolean hasWheelEncoders = false;
     /**
-     * FORWARD_ENCODER_COUNTS_PER_INCH, RIGHT_ENCODER_COUNTS_PER_INCH, CW_ENCODER_COUNTS_PER_DEGREE are used when using wheel encoders (not odometry pods)
-     * <p>
-     * We drove 120 inches or 3600 degrees 3 times. These were the wheel encoder counts for each of the wheels (keep them all positive).
-     * We divide by the number of data points and the distance traveled to get the average encoder count per unit per wheel.
-     * You might get negative encoder values but use the absolute value in the equation.
+     * FORWARD_ENCODER_COUNTS_PER_INCH, RIGHT_ENCODER_COUNTS_PER_INCH, CW_ENCODER_COUNTS_PER_DEGREE
+     * are used when using wheel encoders (not odometry pods). For calibration you are going to do 3 different tests,
+     * the forward test, strafe test, and turn test.
+     *
+     * Forward Test:
+     * Drove forward 96 inches 1 time and recorded wheel encoder counts for each of the wheels (keep them all positive,
+     * you might get negative encoder values but use the absolute value in the equation). The total encoder counts are
+     * divided by the number of data points and the distance traveled in order to get the average encoder count per unit per wheel.
+     * It's recommended to do more tests than one, here is an example if we had done 2 tests:
+     * FORWARD_ENCODER_COUNTS_PER_INCH = ((3358 + 3439 + 3362 + 3416 + 3100 + 3100 + 3200 + 3200) / 8.0) / 96.0;
      */
     public static double FORWARD_ENCODER_COUNTS_PER_INCH = ((3358 + 3439 + 3362 + 3416) / 4.0) / 96.0;
-    //All values are positive when we strafe right.
+    /**
+     * Strafe Test:
+     * Same thing as the forward except strafe right instead. Remember to use the absolute value of the wheel encoder values.
+     */
     public static double RIGHT_ENCODER_COUNTS_PER_INCH = ((4109 + 4056 + 3899 + 3884) / 4.0) / 96.0;
-    //We rotated 10 times twice. Rear wheels were negative when rotation was clockwise.
+    /**
+     * Turn Test:
+     * Rotated 10 times clockwise (360 degrees) for 1 test and recorded absolute value of wheel encoder counts. The total encoder counts
+     * are divided by the number of data points, number of rotations, and 360 degrees.
+     */
     public static double CW_ENCODER_COUNTS_PER_DEGREE = ((28859 + 28843 + 28849 + 28840) / 4.0) / 10.0 / 360;
 
     /**
-     * Total left odometry pod encoder count when traveling a decided forward distance (IF its negative, keep the negative sign)
+     * The odometry calibration process is very similar to the wheel encoder calibration, except you record
+     * the odometry pod encoders instead. You still do a forward test, strafe (right) test, and turn (clockwise) test.
+     *
+     * Total left odometry pod encoder count when traveling a decided forward distance (IF its negative, keep the negative sign).
      */
     static double LEFT_ENCODER_FORWARD_VALUE = -31297 + -31422 + -31945 + -31571;
-    /**
-     * Total right odometry pod encoder count when traveling a decided forward distance (IF its negative, keep the negative sign)
-     */
+    /** Total right odometry pod encoder count when traveling a decided forward distance (IF its negative, keep the negative sign). */
     static double RIGHT_ENCODER_FORWARD_VALUE = -32007 + -32042 + -31976 + -31996;
-    /**
-     * Total middle odometry pod encoder count when traveling a decided forward distance (IF its negative, keep the negative sign)
-     */
+    /** Total middle odometry pod encoder count when traveling a decided forward distance (IF its negative, keep the negative sign). */
     static double MIDDLE_ENCODER_FORWARD_VALUE = -398 + -840 + -669 + -686;
-    /**
-     * Decided distance from encoder forward value tests (we drove forward 96in) times number of tests (in inches)
-     */
+    /** Decided distance from encoder forward value tests (we drove forward 96in) times number of tests (in inches). */
     static double FORWARD_TRAVEL = 96 * 4;
-    /**
-     * Total left odometry pod encoder count when traveling a decided strafe distance (IF its negative, keep the negative sign)
-     */
+
+    /** Total left odometry pod encoder count when traveling a decided strafe distance (IF its negative, keep the negative sign). */
     static double LEFT_ENCODER_STRAFE_VALUE = 727 + 94 + -187 + 1597;
-    /**
-     * Total right odometry pod encoder count when traveling a decided strafe distance (IF its negative, keep the negative sign)
-     */
+    /** Total right odometry pod encoder count when traveling a decided strafe distance (IF its negative, keep the negative sign). */
     static double RIGHT_ENCODER_STRAFE_VALUE = -455 + -1147 + -1384 + -204;
-    /**
-     * Total middle odometry pod encoder count when traveling a decided strafe distance (IF its negative, keep the negative sign)
-     */
+    /** Total middle odometry pod encoder count when traveling a decided strafe distance (IF its negative, keep the negative sign). */
     static double MIDDLE_ENCODER_STRAFE_VALUE = -31983 + -32027 + -32093 + -31979;
-    /**
-     * Decided distance from encoder strafe value tests (we strafed right 96in) times number of tests (in inches)
-     */
+    /** Decided distance from encoder strafe value tests (we strafed right 96in) times number of tests (in inches). */
     static double STRAFE_TRAVEL = 96 * 4;
-    /**
-     * Total left odometry pod encoder count when spinning a decided amount (IF its negative, keep the negative sign)
-     */
+
+    /** Total left odometry pod encoder count when spinning a decided amount (IF its negative, keep the negative sign). */
     static double LEFT_ENCODER_CW_TURN = 132984 + 133344 + 138101 + 137789;
-    /**
-     * Total right odometry pod encoder count when spinning a decided amount (IF its negative, keep the negative sign)
-     */
+    /** Total right odometry pod encoder count when spinning a decided amount (IF its negative, keep the negative sign). */
     static double RIGHT_ENCODER_CW_TURN = -126787 + -126350 + -120872 + -121079;
-    /**
-     * Total middle odometry pod encoder count when spinning a decided amount (IF its negative, keep the negative sign)
-     */
+    /** Total middle odometry pod encoder count when spinning a decided amount (IF its negative, keep the negative sign). */
     static double MIDDLE_ENCODER_CW_TURN = 74385 + 73464 + 86852 + 86790;
     /**
-     * Decided amount from encoder spinning value tests [we spun clockwise (CW) ten times (3600 degrees)] times number of tests (in inches)
+     * Decided amount from encoder spinning value tests [we spun clockwise (CW) ten times (3600 degrees)] times number
+     * of tests (in inches).
      */
     static double CW_TURN_DEGREES = 3600 + 3600 + 3600 + 3600;
+
     static Array2DRowRealMatrix odomat = new Array2DRowRealMatrix(new double[][]{
             {LEFT_ENCODER_FORWARD_VALUE, MIDDLE_ENCODER_FORWARD_VALUE, RIGHT_ENCODER_FORWARD_VALUE},
             {LEFT_ENCODER_STRAFE_VALUE, MIDDLE_ENCODER_STRAFE_VALUE, RIGHT_ENCODER_STRAFE_VALUE},
@@ -171,7 +170,7 @@ public class Stampede {
     }
 
     /**
-     * Initializes the angle tracker (IMU)
+     * Initializes the angle tracker (IMU).
      */
     public void initTracker() {
         angleTracker = new AngleTrackerIMU(hwMap.get(IMU.class, "imu"));
@@ -180,7 +179,7 @@ public class Stampede {
     /**
      * Initialize standard Hardware interfaces.
      *
-     * @param ahwMap Hardware map from op mode
+     * @param ahwMap Hardware map from opmode
      */
     public void init(HardwareMap ahwMap) {
         // Save reference to Hardware map
@@ -197,7 +196,7 @@ public class Stampede {
         // If using SparkFun otos use this section
         if (false) {
             otos = hwMap.get(SparkFunOTOS.class, "otos");
-            //put otos calibration values here
+            // put otos calibration values here
             configureOtos(-7.125, 0, -90, 3600.0 / (3600.0 + 15.6), 96.0 / 92.6);
             SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(xFieldPos, yFieldPos, headingField);
             otos.setPosition(currentPosition);
@@ -209,8 +208,8 @@ public class Stampede {
     }
 
     /**
-     * Calculate speed for the wheels, sets the power for the wheels, and sending telemetry
-     * This is for mechanum robots
+     * Calculate speed for the wheels, sets the power for the wheels, and sending telemetry.
+     * This is for mechanum robots.
      *
      * @param forward     speed forward [-1, 1]
      * @param strafeRight speed right [-1, 1]
@@ -226,7 +225,7 @@ public class Stampede {
 
         double max = Math.max(Math.max(Math.abs(speedfl), Math.abs(speedfr)), Math.max(Math.abs(speedrl), Math.abs(speedrr)));
 
-        if (max > 1) { //Use abs value so we don't divide a neg by a neg and have it go forward unexpectedly
+        if (max > 1) { // Use abs value so we don't divide a neg by a neg and have it go forward unexpectedly
             speedfl /= max;
             speedfr /= max;
             speedrl /= max;
@@ -254,21 +253,21 @@ public class Stampede {
             int rlPosition = driveRearLeft.getCurrentPosition();
             int rrPosition = driveRearRight.getCurrentPosition();
 
-            //how much did we move since we last asked
+            // how much did we move since we last asked
             int flPositionChange = flPosition - flLastPosition;
             int frPositionChange = frPosition - frLastPosition;
             int rlPositionChange = rlPosition - rlLastPosition;
             int rrPositionChange = rrPosition - rrLastPosition;
 
-            //how far has robot moved, how many inches and degrees changed (forward, strafe, turn)
-            //inches traveled forward
+            // how far has robot moved, how many inches and degrees changed (forward, strafe, turn)
+            // inches traveled forward
             forwardDistance = ((flPositionChange - frPositionChange - rlPositionChange + rrPositionChange) / 4.0) / FORWARD_ENCODER_COUNTS_PER_INCH;
-            //inches traveled right
+            // inches traveled right
             rightDistance = ((flPositionChange + frPositionChange + rlPositionChange + rrPositionChange) / 4.0) / RIGHT_ENCODER_COUNTS_PER_INCH;
-            //turn angle in degrees
+            // turn angle in degrees
             cwTurnAngle = ((flPositionChange + frPositionChange - rlPositionChange - rrPositionChange) / 4.0) / CW_ENCODER_COUNTS_PER_DEGREE;
 
-            //updating new last position
+            // updating new last position
             flLastPosition = flPosition;
             frLastPosition = frPosition;
             rlLastPosition = rlPosition;
@@ -278,13 +277,13 @@ public class Stampede {
             int leftPosition = odopodLeft.getCurrentPosition();
             int midPosition = odopodMiddle.getCurrentPosition();
 
-            //how much did we move since we last asked
+            // how much did the robot move since we last asked
             int rightPod = rightPosition - odoRightLastPosition;
             int leftPod = leftPosition - odoLeftLastPosition;
             int midPod = midPosition - odoMiddleLastPosition;
 
-            //how far has robot moved, how many inches and degrees changed (forward, strafe, turn)
-            //turn angle in degrees
+            // how far has robot moved, how many inches and degrees changed (forward, strafe, turn)
+            // turn angle in degrees
             //double cwTurnAngle = ((flPositionChange + frPositionChange - rlPositionChange - rrPositionChange) / 4.0) / CW_ENCODER_COUNTS_PER_DEGREE;
             //inches traveled forward
             //double forwardDistance = ((flPositionChange - frPositionChange - rlPositionChange + rrPositionChange) / 4.0) / FORWARD_ENCODER_COUNTS_PER_INCH;
@@ -298,7 +297,7 @@ public class Stampede {
             odoLeftLastPosition = leftPosition;
             odoMiddleLastPosition = midPosition;
         } else {
-            //if we don't have wheel encoders or odopods, we must have an otos
+            // if we don't have wheel encoders or odopods, we must have an otos
             SparkFunOTOS.Pose2D currPos = otos.getPosition();
             xFieldPos = currPos.x;
             yFieldPos = currPos.y;
@@ -306,10 +305,10 @@ public class Stampede {
         }
         // apply the position change from wheel encoders or odopods
         if (forwardDistance != 0.0 || rightDistance != 0.0 || cwTurnAngle != 0.0) {
-            //same as double averageHeading = (headingField + (headingField - cwTurn)) / 2;
+            // same as double averageHeading = (headingField + (headingField - cwTurn)) / 2;
             double avgHeading = headingField - cwTurnAngle / 2;
             headingField -= cwTurnAngle;
-            //effect of forward movement
+            // effect of forward movement
             xFieldPos += forwardDistance * Math.cos(Math.toRadians(avgHeading));
             yFieldPos += forwardDistance * Math.sin(Math.toRadians(avgHeading));
             //effect of right movement
@@ -319,7 +318,7 @@ public class Stampede {
 
         // if you are using the imu, it overrules orientation from other methods
         if (angleTracker != null) {
-            //this is where the IMU thinks heading is
+            // this is where the IMU thinks heading is
             headingField = angleTracker.getOrientation();
         }
     }
@@ -328,10 +327,10 @@ public class Stampede {
      * Compute the distance the robot needs to travel from the current field position to a target
      * position.
      *
-     * @param xTargetPos    Target position in field coordinates (in inches).
-     * @param yTargetPos    Target position in field coordinates (in inches).
-     * @param headingTarget Target heading in field coordinates (in degrees).
-     * @return Distances to travel forward (in inches), right (in inches), and turn clockwise (in degrees).
+     * @param xTargetPos    Target position in field coordinates (in inches)
+     * @param yTargetPos    Target position in field coordinates (in inches)
+     * @param headingTarget Target heading in field coordinates (in degrees)
+     * @return Distances to travel forward (in inches), right (in inches), and turn clockwise (in degrees)
      */
     public double[] getTravelValues(double xTargetPos, double yTargetPos, double headingTarget) {
         double deltaX = xTargetPos - xFieldPos;
@@ -355,8 +354,8 @@ public class Stampede {
     }
 
     /**
-     * @param angle1 (in degrees).
-     * @param angle2 (in degrees).
+     * @param angle1 (in degrees)
+     * @param angle2 (in degrees)
      * @return angle 1 - angle 2 out of 360 (in degrees)
      */
     public double angleDifference(double angle1, double angle2) {
@@ -373,9 +372,9 @@ public class Stampede {
     /**
      * Sets the robot's field position to a known set of coordinates.
      *
-     * @param x Field position in inches.
-     * @param y Field position in inches.
-     * @param heading Field orientation in degrees.
+     * @param x Field position (in inches)
+     * @param y Field position (in inches)
+     * @param heading Field orientation (in degrees)
      */
     public void setFieldPosition(double x, double y, double heading) {
         xFieldPos = x;
@@ -390,9 +389,7 @@ public class Stampede {
         }
     }
 
-    /**
-     * @return maximum drive speed out of all the motors
-     */
+    /** @return maximum drive speed out of all the motors */
     public double currentAbsDriveSpeed() {
         return Math.max(
                 Math.max(Math.abs(driveFrontLeft.getPower()), Math.abs(driveFrontRight.getPower())),

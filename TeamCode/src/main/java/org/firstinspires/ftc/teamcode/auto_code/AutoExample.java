@@ -20,11 +20,10 @@ public class AutoExample extends OpMode {
     Stampede stampede;
     // This is the FIRST state for the State Machine
     String nextState = "actionStart";
-    // we'll set this when we need to wait for an action to complete rather than
-    // check if the lift or drive is busy.
+    // We'll set this when we need to wait for an action to complete rather than check if the lift or drive is busy.
     double wait = 0;
 
-    //for where coords are on the field for our different auto modes (diff start positions, ect.)
+    // For where coordinates are on the field for our different auto modes (diff start positions, ect.)
     HashMap<String, double[]> drivePositionsAudienceRed = new HashMap<>();
     HashMap<String, double[]> drivePositionsAudienceBlue = new HashMap<>();
     HashMap<String, double[]> drivePositionsBackRed = new HashMap<>();
@@ -96,7 +95,7 @@ public class AutoExample extends OpMode {
             drivePositions = drivePositionsBackBlue;
         }
 
-        //setting start position, 0 is x, 1 is y, 2 is heading
+        //setting start position, [0] is x, [1] is y, [2] is heading
         stampede.xFieldPos = drivePositions.get("start")[0];
         stampede.yFieldPos = drivePositions.get("start")[1];
         stampede.headingField = drivePositions.get("start")[2];
@@ -114,22 +113,23 @@ public class AutoExample extends OpMode {
         driveTo.updateDrive();
 
         if (!isBusy()) {
-            //variable used in getDeclaredMethod cannot be changed within the loop because it is being used, so we create another variable so that we may change nextState!
+            // Variable used in getDeclaredMethod cannot be changed within the loop because it is being used,
+            // so we create another variable so that we may change nextState!
             String currentState = nextState;
             try {
-                // inspect our own class to see if we have an action method with the name we specified
+                // Inspect our own class to see if we have an action method with the name we specified.
 
                 Method stateMethod = this.getClass().getMethod(currentState, new Class[]{});
-                // invoke it with our class instance
+                // Invoke it with our class instance.
                 stateMethod.invoke(this);
-                // catch exceptions to keep the compiler happy
+                // Catch exceptions to keep the compiler happy.
             } catch (NoSuchMethodException exc) {
-                // this will be caught when we haven't defined the method (e.g., for "done")
+                // This will be caught when we haven't defined the method (e.g., for "done").
             } catch (IllegalAccessException exc) {
-                // we don't expect this one
+                // We don't expect this one.
                 telemetry.addData("exception", "IllegalAccessException when calling " + currentState + " " + exc);
             } catch (InvocationTargetException exc) {
-                // we don't expect this one
+                // We don't expect this one.
                 telemetry.addData("exception", "InvocationTargetException when calling " + currentState + " " +
                         exc.getTargetException() + " " + exc.getTargetException().getStackTrace()[0]);
             }
@@ -142,14 +142,14 @@ public class AutoExample extends OpMode {
         driveTo.areWeThereYet = true;
     }
 
-    //conditions that the robot is busy in
+    // Conditions that the robot is busy in.
     Boolean isBusy() {
-        //if robot isn't there yet its busy
+        // If robot isn't there yet its busy.
         if (!driveTo.areWeThereYet) {
             return true;
         }
         /*
-        You can check for other busy conditions like this
+        You can check for other busy conditions like this (e.g., for any other motors you want to move in auto.
 
         if (robot.isLiftBusy()) {
             return true;
@@ -161,14 +161,15 @@ public class AutoExample extends OpMode {
         return false;
     }
 
-    // This is the State Machine, it's the "steps" the robot will follow
+    // This is the State Machine, it's the "steps" the robot will follow.
     public void actionStart() {
         driveTo.setTargetPosition(drivePositions.get("Position 1"), .25);
-        // Name what the next action should be
+        // Name what the next action should be.
         nextState = "actionStep2";
     }
 
     public void actionStep2() {
+        // stopBetween is whether the robot will stop between positions, or just drive through the position.
         driveTo.setTargetPosition(drivePositions.get("Position 2"), .25, false);
         wait = getRuntime() + 5;
         nextState = "actionStep3";
