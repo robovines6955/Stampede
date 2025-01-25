@@ -11,7 +11,7 @@ The code in TeamCode was written by FTC team RoBovines 6955, if you have trouble
 Stampede is a pathfinding algorithm that allows robots to drive to target positions and orientations on the field. With Stampede the robot can correct off AprilTags while in motion (unlike RoadRunner) and has a simpler calibration process. It is compatible with wheel encoders, odometry pods (three), and the optical tracking odometry sensor (otos).
 
 ## Steering Aid
-In Tele_Op we added code to help the robot maintain it's heading if the driver hasn't told the robot to turn. This helps the robot drive straight and prevent it from drifting to the side. This code helps the robot needs to drive as straight as possible for the forward and strafe calibration tests.
+In Tele_Op we added code to help the robot maintain it's heading if the driver hasn't told the robot to turn. This helps the robot drive straight and prevent it from drifting to the side. This code helps the robot drive as straight as possible for the forward and strafe calibration tests.
 
 ## How to Use Stampede
 
@@ -105,7 +105,7 @@ CW_ENCODER_COUNTS_PER_DEGREE = ((28859 + 28843 + 28849 + 28840) / 4.0) / 10.0 / 
 ```
 
 ### Calibration (Odometry Pods)
-Run the forward test and change `LEFT_ENCODER_FORWARD_VALUE`, `MIDDLE_ENCODER_FORWARD_VALUE`, and `RIGHT_ENCODER_FORWARD_VALUE` to the values you measured. Each variable is the sum of that specific pod's encoder counts from each test. For example our first test we got -31297 (left value), -398 (middle value), and -32007 (right value). We then added the rest of the encoder values from the rest of our tests as we went. `FORWARD_TRAVEL` is the *total* distance the robot drove during the forward test (we drove 96in 4 times).
+Run the forward test and change `LEFT_ENCODER_FORWARD_VALUE`, `MIDDLE_ENCODER_FORWARD_VALUE`, and `RIGHT_ENCODER_FORWARD_VALUE` to the values you measured. Each variable is the sum of that specific pod's encoder counts from each test. For example our first test we got -31297 (left value), -398 (middle value), and -32007 (right value). We then added the rest of the encoder values from the rest of our tests as we went. `FORWARD_TRAVEL` is the *total* distance the robot drove during the forward tests (we drove 96in 4 times).
 ```
 LEFT_ENCODER_FORWARD_VALUE = -31297 + -31422 + -31945 + -31571;
 MIDDLE_ENCODER_FORWARD_VALUE = -398 + -840 + -669 + -686;
@@ -113,8 +113,29 @@ RIGHT_ENCODER_FORWARD_VALUE = -32007 + -32042 + -31976 + -31996;
 FORWARD_TRAVEL = 96 * 4;
 ```
 
+Run the strafe test and change `LEFT_ENCODER_STRAFE_VALUE`, `MIDDLE_ENCODER_STRAFE_VALUE`, and `RIGHT_ENCODER_STRAFE_VALUE` to the values you measured. Each variable is the sum of that specific pod's encoder counts from each test. For example our first test we got 727 (left value), -31983 (middle value), and -455 (right value). We then added the rest of the encoder values from the rest of our tests as we went. `STRAFE_TRAVEL` is the *total* distance the robot drove during the strafe tests (we drove 96in 4 times).
+```
+LEFT_ENCODER_STRAFE_VALUE = 727 + 94 + -187 + 1597;
+MIDDLE_ENCODER_STRAFE_VALUE = -31983 + -32027 + -32093 + -31979;
+RIGHT_ENCODER_STRAFE_VALUE = -455 + -1147 + -1384 + -204;
+STRAFE_TRAVEL = 96 * 4;
+```
+
+Run the turn test and change `LEFT_ENCODER_CW_TURN`, `MIDDLE_ENCODER_CW_TURN`, and `RIGHT_ENCODER_CW_TURN` to the values you measured. Each variable is the sum of that specific pod's encoder counts from each test. For example our first test we got 132984 (left value), 74385 (middle value), and -126787 (right value). We then added the rest of the encoder values from the rest of our tests as we went. `CW_TURN_DEGREES` is the *total* rotation (in degrees) the robot turned during the turn tests (we did 10 complete rotations, 4 times).
+```
+LEFT_ENCODER_CW_TURN = 132984 + 133344 + 138101 + 137789;
+MIDDLE_ENCODER_CW_TURN = 74385 + 73464 + 86852 + 86790;
+RIGHT_ENCODER_CW_TURN = -126787 + -126350 + -120872 + -121079;
+CW_TURN_DEGREES = 3600 + 3600 + 3600 + 3600;
+```
+
 ### Calibration (OTOS)
 Follow the normal calibration for OTOS (directions for calibration tests are commented into `configureOtos` in the Stampede file). But don't change the values in the `configureOtos` method, change them when `configureOtos` is called in in `init`. There were the values we had on our robot for the OTOS `x`, `y`, `heading`, `angularScalar`, and `linearScalar`.
 ```
 configureOtos(-7.125, 0, -90, 3600.0 / (3600.0 + 15.6), 96.0 / 92.6);
 ```
+
+### Autonomous
+Generally there are four options for where to place your robot to start in autonomous: red/blue and audience/back. 
+
+AutoExample uses HashMaps to store positions and their names depending on the robot's alliance color and starting position. 
