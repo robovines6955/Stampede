@@ -149,7 +149,7 @@ public class AutoExample extends OpMode {
             return true;
         }
         /*
-        You can check for other busy conditions like this (e.g., for any other motors you want to move in auto.
+        You can check for other busy conditions like this (e.g., for any other motors you want to move in auto).
 
         if (robot.isLiftBusy()) {
             return true;
@@ -164,6 +164,8 @@ public class AutoExample extends OpMode {
     // This is the State Machine, it's the "steps" the robot will follow.
     public void actionStart() {
         driveTo.setTargetPosition(drivePositions.get("Position 1"), .25);
+        // This is how you can add a wait.
+        //wait = getRuntime() + 5;
         // Name what the next action should be.
         nextState = "actionStep2";
     }
@@ -171,7 +173,6 @@ public class AutoExample extends OpMode {
     public void actionStep2() {
         // stopBetween is whether the robot will stop between positions, or just drive through the position.
         driveTo.setTargetPosition(drivePositions.get("Position 2"), .25, false);
-        wait = getRuntime() + 5;
         nextState = "actionStep3";
     }
 

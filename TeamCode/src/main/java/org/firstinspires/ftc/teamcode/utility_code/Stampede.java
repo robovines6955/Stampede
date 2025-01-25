@@ -62,33 +62,33 @@ public class Stampede {
 
     /**
      * The odometry calibration process is very similar to the wheel encoder calibration, except you record
-     * the odometry pod encoders instead. You still do a forward test, strafe (right) test, and turn (clockwise) test.
+     * the odometry pod encoders instead. You still do a forward test, strafe (right) test, and turn (clockwise) test. We ran 4 of each test.
      *
      * Total left odometry pod encoder count when traveling a decided forward distance (IF its negative, keep the negative sign).
      */
     static double LEFT_ENCODER_FORWARD_VALUE = -31297 + -31422 + -31945 + -31571;
-    /** Total right odometry pod encoder count when traveling a decided forward distance (IF its negative, keep the negative sign). */
-    static double RIGHT_ENCODER_FORWARD_VALUE = -32007 + -32042 + -31976 + -31996;
     /** Total middle odometry pod encoder count when traveling a decided forward distance (IF its negative, keep the negative sign). */
     static double MIDDLE_ENCODER_FORWARD_VALUE = -398 + -840 + -669 + -686;
+    /** Total right odometry pod encoder count when traveling a decided forward distance (IF its negative, keep the negative sign). */
+    static double RIGHT_ENCODER_FORWARD_VALUE = -32007 + -32042 + -31976 + -31996;
     /** Decided distance from encoder forward value tests (we drove forward 96in) times number of tests (in inches). */
     static double FORWARD_TRAVEL = 96 * 4;
 
     /** Total left odometry pod encoder count when traveling a decided strafe distance (IF its negative, keep the negative sign). */
     static double LEFT_ENCODER_STRAFE_VALUE = 727 + 94 + -187 + 1597;
-    /** Total right odometry pod encoder count when traveling a decided strafe distance (IF its negative, keep the negative sign). */
-    static double RIGHT_ENCODER_STRAFE_VALUE = -455 + -1147 + -1384 + -204;
     /** Total middle odometry pod encoder count when traveling a decided strafe distance (IF its negative, keep the negative sign). */
     static double MIDDLE_ENCODER_STRAFE_VALUE = -31983 + -32027 + -32093 + -31979;
+    /** Total right odometry pod encoder count when traveling a decided strafe distance (IF its negative, keep the negative sign). */
+    static double RIGHT_ENCODER_STRAFE_VALUE = -455 + -1147 + -1384 + -204;
     /** Decided distance from encoder strafe value tests (we strafed right 96in) times number of tests (in inches). */
     static double STRAFE_TRAVEL = 96 * 4;
 
     /** Total left odometry pod encoder count when spinning a decided amount (IF its negative, keep the negative sign). */
     static double LEFT_ENCODER_CW_TURN = 132984 + 133344 + 138101 + 137789;
-    /** Total right odometry pod encoder count when spinning a decided amount (IF its negative, keep the negative sign). */
-    static double RIGHT_ENCODER_CW_TURN = -126787 + -126350 + -120872 + -121079;
     /** Total middle odometry pod encoder count when spinning a decided amount (IF its negative, keep the negative sign). */
     static double MIDDLE_ENCODER_CW_TURN = 74385 + 73464 + 86852 + 86790;
+    /** Total right odometry pod encoder count when spinning a decided amount (IF its negative, keep the negative sign). */
+    static double RIGHT_ENCODER_CW_TURN = -126787 + -126350 + -120872 + -121079;
     /**
      * Decided amount from encoder spinning value tests [we spun clockwise (CW) ten times (3600 degrees)] times number
      * of tests (in inches).
@@ -183,13 +183,13 @@ public class Stampede {
 
         // If using wheel encoders pass true, otherwise pass false
         initWheelHardware(true);
-        // If you have odopods enable this section
+        // If using odometry pods pass true, otherwise pass false
         if (false) {
             odopodLeft = hwMap.get(DcMotorEx.class, "odoleft");
             odopodRight = hwMap.get(DcMotorEx.class, "odoright");
             odopodMiddle = hwMap.get(DcMotorEx.class, "odomid");
         }
-        // If using SparkFun otos use this section
+        // If using SparkFun otos pass true, otherwise pass false
         if (false) {
             otos = hwMap.get(SparkFunOTOS.class, "otos");
             // put otos calibration values here
@@ -198,6 +198,7 @@ public class Stampede {
             otos.setPosition(currentPosition);
         }
         // You can use the REV controller's IMU for better orientation
+        // If using the IMU pass true, otherwise pass false
         if (true) {
             initTracker();
         }
