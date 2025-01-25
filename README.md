@@ -15,7 +15,7 @@ In Tele_Op we added code to help the robot maintain it's heading if the driver h
 
 ## How to Use Stampede
 
-To implement Stampede into your code you can either fork this repository or copy the AutoExample, Tele_Op, AngleTrackerIMU, DriveTo, and Stampede files into your code. 
+To implement Stampede into your code you can either fork this repository or copy the AutoExample, Tele_Op, AngleTrackerIMU, DriveTo, and Stampede files into your code. These files are all in the [TeamCode area](tree/stampede/TeamCode/src/main/java/org/firstinspires/ftc/teamcode). 
 
 <img align="left" width=348 height=400 src="https://github.com/user-attachments/assets/a71adffd-00ef-47cc-a08b-dec52f076f1a">
 Stampede uses the FTC field coordinate system. Each position that you define is going to be where the center of the robot is on the field (x,y) and where the robot is facing (heading). For example, if the robot is on the field's origin facing the red alliance station, the position would be (0, 0, -90).
@@ -136,6 +136,48 @@ configureOtos(-7.125, 0, -90, 3600.0 / (3600.0 + 15.6), 96.0 / 92.6);
 ```
 
 ### Autonomous
-Generally there are four options for where to place your robot to start in autonomous: red/blue and audience/back. 
+By default AutoExample will drive to `"Position 1"`, `"Position 2"`, then end at `"Position 3"`. The robot will not completely stop when it gets to `"Position 2"`. What coordinates those are depends on the start position of the robot.
 
-AutoExample uses HashMaps to store positions and their names depending on the robot's alliance color and starting position. 
+Generally there are four options for where to place your robot to start in autonomous: red/blue and audience/back. If you are standing in the red alliance station facing the field, the audience side would be to your left and back would be to your right. `isRed` and `isAudience` are booleans that you can either change by pressing dpad on your controller while in `init_loop` or you can change them in the class level variables.
+
+Positions are created with their name, location, and orientation in HashMaps depending on the robot being red/blue and audience/back. For example `"start"` is the coordinates  (x, y, heading) the robot is placed on the field to start autonomous. For example, if the robot is audience side and red, it would start at (-12, -63, 90) then `"Position 1"` would be (-36, -40, 90). You can change the coordinates of `"start"`, but *make sure to keep the name the same*. Any of the other `drivePositions` you can change the coordinates and the name. 
+```
+drivePositionsAudienceRed.put("start", new double[]{-12, -63, 90});
+drivePositionsAudienceBlue.put("start", new double[]{-12, 63, -90});
+drivePositionsBackRed.put("start", new double[]{12, -63, 90});
+drivePositionsBackBlue.put("start", new double[]{12, 63, -90});
+
+drivePositionsAudienceRed.put("Position 1", new double[]{-36, -40, 90});
+drivePositionsAudienceBlue.put("Position 1", new double[]{-36, 40, -90});
+drivePositionsBackRed.put("Position 1", new double[]{12, -40, 90});
+drivePositionsBackBlue.put("Position 1", new double[]{36, 40, -90});
+```
+
+AutoExample features a state machine to "step" between actions in autonomous. This is how the first state is set:
+```
+String nextState = "actionStart";
+```
+States start with action then have some descriptor to describe what the robot will do in that state. At the end of *every* state you have to tell it what state to go to next. For example this is `actionStart` and the next state is `actionStep2`. You also have the option to specify a speed other than the default speed (`maxSpeedFactor` in DriveTo) and whether the robot will stop at that position or just drive through it (`stopBetween` is true by default).
+```
+public void actionStart() {
+        driveTo.setTargetPosition(drivePositions.get("Position 1"), .25, false);
+        nextState = "actionStep2";
+    }
+```
+When you want to end autonomous, set next state equal to `"actionStop"`.
+
+`isBusy` keeps track of if the robot is ready to move onto the next state. It gets stuck in a state unless it reports that the robot isn't busy anymore. If the robot is driving or waiting it's busy. You can also add other `isBusy` clauses if you want the robot to wait for anything else (e.g., a lift to raise).
+```
+  Boolean isBusy() {
+        if (!driveTo.areWeThereYet) {
+            return true;
+        }
+        if (getRuntime() < wait) {
+            return true;
+        }
+        return false;
+    }
+```
+
+### You did it !!!!
+### If you still have questions we would be happy to help you, contact us at team@robovines.org
