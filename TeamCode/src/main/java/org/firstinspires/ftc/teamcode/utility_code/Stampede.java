@@ -139,10 +139,6 @@ public class Stampede {
         drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         drive.setZeroPowerBehavior(BRAKE);
         drive.setPower(0);
-        // we might want to make the default RUN_TO_POSITION.  RUN_TO_POSITION
-        // targets a specific final position of the motor based on its internal
-        // encoders.  RUN_USING_ENCODER targets a specific velocity using the
-        // encoders.
         if (!withEncoder) {
             drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         } else {
