@@ -14,8 +14,14 @@ Stampede is a pathfinding algorithm that allows robots to drive to target positi
 
 To implement Stampede into your code you can either fork this repository or copy the AutoExample, Tele_Op, AngleTrackerIMU, DriveTo, and Stampede files into your code. 
 
-Stampede uses the FTC field coordinate system.
+<img align="left" width=348 height=400 src="https://github.com/user-attachments/assets/a71adffd-00ef-47cc-a08b-dec52f076f1a">
+Stampede uses the FTC field coordinate system. Each position that you define is going to be where the center of the robot is on the field (x,y) and where the robot is facing (heading). For example, if the robot is on the field's origin facing the red alliance station, the position would be (0, 0, -90).
 
+### Customize AngleTrackerIMU
+Change the REV hub orientation to match the orientation of your control hub on the robot (if using the expansion hub IMU instead for some reason use that orientation). Keep in mind this is relative to the robot. The choices are: BACKWARD, FORWARD, UP, DOWN, LEFT, or RIGHT.
 ```
-This is sample code
+RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD;
+RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.RIGHT;
 ```
+
+### Customize Stampede
