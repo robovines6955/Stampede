@@ -1,3 +1,5 @@
+# This is just the FTC read me, go back to the main read me to find directions to use Stampede.
+
 ## TeamCode Module
 
 Welcome!
