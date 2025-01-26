@@ -130,7 +130,7 @@ CW_TURN_DEGREES = 3600 + 3600 + 3600 + 3600;
 ```
 
 ### Calibration (OTOS)
-Follow the normal calibration for OTOS (directions for calibration tests are commented into `configureOtos` in the Stampede file). But don't change the values in the `configureOtos` method, change them when `configureOtos` is called in in `init`. There were the values we had on our robot for the OTOS `x`, `y`, `heading`, `angularScalar`, and `linearScalar`.
+Follow the normal calibration for OTOS (directions for calibration tests are commented into `configureOtos` in the Stampede file). But don't change the values in the `configureOtos` method, change them when `configureOtos` is called in in `init`. These were the values we had on our robot for the OTOS `x`, `y`, `heading`, `angularScalar`, and `linearScalar`.
 ```
 configureOtos(-7.125, 0, -90, 3600.0 / (3600.0 + 15.6), 96.0 / 92.6);
 ```
@@ -178,6 +178,25 @@ When you want to end autonomous, set next state equal to `"actionStop"`.
         return false;
     }
 ```
+
+### Other Tuning
+If the robot isn't driving smoothly you should consider changing some of the variables in DriveTo. The defaults are just the values that worked for us, but we all have different robots so your values may need to be tuned. 
+- **`FULL_SPEED_DISTANCE`** distance from target when robot starts slowing down (in inches)
+- **`FULL_SPEED_ANGLE`** angle from the target when the robot starts slowing down (in degrees)
+- **`NO_STOP_FULL_SPEED_DISTANCE`** distance from target, when not stopping between actions, that the robot starts slowing down (in inches)
+- **`NO_STOP_FULL_SPEED_ANGLE`** angle from target, when not stopping between actions, that the robot starts slowing down (in degrees)
+- **`CLOSE_ENOUGH_DISTANCE`** distance from target where the robot is close enough and stops (in inches)
+- **`CLOSE_ENOUGH_ANGLE`** angle from target where the robot is close enough and stops (in degrees)
+- **`NO_STOP_CLOSE_ENOUGH_DISTANCE`** distance from target where the robot is close enough, when not stopping between targets, and moves on to the next action (in inches)
+- **`NO_STOP_CLOSE_ENOUGH_ANGLE`** angle from target where the robot is close enough, when not stopping between targets, and moves on to the next action (in degrees)
+- **`TIME_TO_SPEED_UP`** when stopped before starting an action, the time it takes to speed up to maxSpeedFactor (in seconds)
+- **`DISTANCE_PID_D`** factor determining how far the speed can stray from the target forward and right speed
+- **`ANGLE_PID_D`** factor determining how far the speed can stray from the target turn speed
+- **`MAX_STALL_TIME`** maximum amount of time of the robot not moving until the robot gives up on the current action and moves onto the next one (in seconds)
+- **`MIN_MOVE_DIST`** minimum travel distance in order to be considered moving (in inches)
+- **`MIN_MOVE_ANGLE`** minimum angle change in order to be considering turning (in degrees)
+ 
+For example, this year our robot was much heavier and kept overshooting it's target heading. We increased `FULL_SPEED_ANGLE` to help stop this from happening.
 
 ### You did it !!!!
 ### If you still have questions we would be happy to help you, contact us at team@robovines.org
