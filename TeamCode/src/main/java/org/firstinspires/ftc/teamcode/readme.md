@@ -1,4 +1,4 @@
-# This is just the FTC read me, here is our read me with [directions to use Stampede](https://github.com/robovines6955/Stampede/blob/stampede/README.md).
+# This is just the FTC read me, [this is our read me with directions to use Stampede](https://github.com/robovines6955/Stampede/blob/stampede/README.md).
 
 ## TeamCode Module
 
