@@ -15,7 +15,7 @@ In Tele_Op we added code to help the robot maintain it's heading if the driver h
 
 ## How to Use Stampede
 
-To implement Stampede into your code you can either fork this repository or copy the AutoExample, Tele_Op, AngleTrackerIMU, DriveTo, and Stampede files into your code. These files are all in the [TeamCode area](tree/stampede/TeamCode/src/main/java/org/firstinspires/ftc/teamcode). 
+To implement Stampede into your code you can fork or clone this repository. You can also copy the AutoExample, Tele_Op, AngleTrackerIMU, DriveTo, and Stampede files into your code. If you use this method, you need to make sure you have the Apache Commons Math Library. The Stampede files are in the [TeamCode area](tree/stampede/TeamCode/src/main/java/org/firstinspires/ftc/teamcode). 
 
 <img align="left" width=348 height=400 src="https://github.com/user-attachments/assets/a71adffd-00ef-47cc-a08b-dec52f076f1a">
 Stampede uses the FTC field coordinate system. Each position that you define is going to be where the center of the robot is on the field (x,y) and where the robot is facing (heading). For example, if the robot is on the field's origin facing the red alliance station, the position would be (0, 0, -90).
