@@ -95,14 +95,14 @@ public class Stampede {
      */
     static double CW_TURN_DEGREES = 3600 + 3600 + 3600 + 3600;
 
-    static Array2DRowRealMatrix odomat = new Array2DRowRealMatrix(new double[][]{
+    static double[][] odomat = new double[][]{
             {LEFT_ENCODER_FORWARD_VALUE, MIDDLE_ENCODER_FORWARD_VALUE, RIGHT_ENCODER_FORWARD_VALUE},
             {LEFT_ENCODER_STRAFE_VALUE, MIDDLE_ENCODER_STRAFE_VALUE, RIGHT_ENCODER_STRAFE_VALUE},
             {LEFT_ENCODER_CW_TURN, MIDDLE_ENCODER_CW_TURN, RIGHT_ENCODER_CW_TURN}
-    });
-    public static double[] FORWARD_PARAMS = new LUDecomposition(odomat).getSolver().solve(new ArrayRealVector(new double[]{FORWARD_TRAVEL, 0, 0})).toArray();
-    public static double[] STRAFE_PARAMS = new LUDecomposition(odomat).getSolver().solve(new ArrayRealVector(new double[]{0, STRAFE_TRAVEL, 0})).toArray();
-    public static double[] CW_TURN_PARAMS = new LUDecomposition(odomat).getSolver().solve(new ArrayRealVector(new double[]{0, 0, CW_TURN_DEGREES})).toArray();
+    };
+    public static double[] FORWARD_PARAMS = solve(odomat, new double[]{FORWARD_TRAVEL, 0, 0});
+    public static double[] STRAFE_PARAMS = solve(odomat, new double[]{0, STRAFE_TRAVEL, 0});
+    public static double[] CW_TURN_PARAMS = solve(odomat, new double[]{0, 0, CW_TURN_DEGREES});
 
     public AngleTrackerIMU angleTracker;
 
@@ -490,5 +490,35 @@ public class Stampede {
         }
         telemetry.addData("Field Postion", "x: %4.2f, y: %4.2f, heading: %4.2f",
                 xFieldPos, yFieldPos, headingField);
+    }
+    /**
+     * Solves a system of three linear equations with three unknowns.
+     * The function takes a 3x3 coefficient matrix A and a 3-element vector b,
+     * and returns the solution as a 3-element array.
+     * This implementation is based on the Cramer's rule algorithm.
+     *
+     * This removes the Apache library.
+     *
+     * @param A the 3x3 coefficient matrix
+     * @param b the 3-element vector of constants
+     * @return the solution as a 3-element array
+     */
+    public static double[] solve(double[][] A, double[] b) {
+        double determinant = A[0][0] * (A[1][1] * A[2][2] - A[1][2] * A[2][1]) +
+                A[0][1] * (A[1][2] * A[2][0] - A[1][0] * A[2][2]) +
+                A[0][2] * (A[1][0] * A[2][1] - A[1][1] * A[2][0]);
+        if (Math.abs(determinant) < 1e-10) {
+            throw new IllegalArgumentException("The system of equations is ill conditioned.");
+        }
+        double x = (b[0] * (A[1][1] * A[2][2] - A[1][2] * A[2][1]) +
+                A[0][1] * (A[1][2] * b[2] - b[1] * A[2][2]) +
+                A[0][2] * (b[1] * A[2][1] - A[1][1] * b[2])) / determinant;
+        double y = (A[0][0] * (b[1] * A[2][2] - A[1][2] * b[2]) +
+                b[0] * (A[1][2] * A[2][0] - A[1][0] * A[2][2]) +
+                A[0][2] * (A[1][0] * b[2] - b[1] * A[2][0])) / determinant;
+        double z = (A[0][0] * (A[1][1] * b[2] - b[1] * A[2][1]) +
+                A[0][1] * (b[1] * A[2][0] - A[1][0] * b[2]) +
+                b[0] * (A[1][0] * A[2][1] - A[1][1] * A[2][0])) / determinant;
+        return new double[]{x, y, z};
     }
     }
