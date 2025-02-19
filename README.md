@@ -8,14 +8,16 @@ The code in TeamCode was written by FTC team RoBovines 6955, if you have trouble
 
 ## What is Stampede?
 
-Stampede is a pathfinding algorithm that allows robots to drive to target positions and orientations on the field. With Stampede the robot can correct off AprilTags while in motion (unlike RoadRunner) and has a simpler calibration process. It is compatible with wheel encoders, odometry pods (three), and the optical tracking odometry sensor (otos).
+Stampede is a pathfinding algorithm that allows robots to drive to target positions and orientations on the field. With Stampede you can make and tune an autonomous much faster and the calibration process is much simpler. It is compatible with wheel encoders, odometry pods (three), and the optical tracking odometry sensor (otos). If you decide to add AprilTags, the robot can correct off them while in motion (unlike RoadRunner).
 
 ## Steering Aid
 In Tele_Op we added code to help the robot maintain it's heading if the driver hasn't told the robot to turn. This helps the robot drive straight and prevent it from drifting to the side. This code helps the robot drive as straight as possible for the forward and strafe calibration tests.
 
 ## How to Use Stampede
 
-To implement Stampede into your code you can fork or clone this repository. You can also copy the AutoExample, Tele_Op, AngleTrackerIMU, DriveTo, and Stampede files into your code. If you use this method, you need to make sure you have the Apache Commons Math Library. The Stampede files are in the [TeamCode area](tree/stampede/TeamCode/src/main/java/org/firstinspires/ftc/teamcode). 
+To implement Stampede into your code you can fork or clone this repository. You can also copy the AutoExample, Tele_Op, AngleTrackerIMU, DriveTo, and Stampede files into your code. The Stampede files are in the [TeamCode area](tree/stampede/TeamCode/src/main/java/org/firstinspires/ftc/teamcode). 
+
+If you have OnBot Java, change your branch to stampede-onbot-java and copy the files from there instead.
 
 <img align="left" width=348 height=400 src="https://github.com/user-attachments/assets/a71adffd-00ef-47cc-a08b-dec52f076f1a">
 Stampede uses the FTC field coordinate system. Each position that you define is going to be where the center of the robot is on the field (x,y) and where the robot is facing (heading). For example, if the robot is on the field's origin facing the red alliance station, the position would be (0, 0, -90).
