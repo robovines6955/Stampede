@@ -42,9 +42,7 @@ public class Tele_Op extends OpMode {
     /* Declare OpMode members. */
     Stampede stampede;
     double x1, y1, x2;
-    double speedfactor = 0.5;
-    double driveAngle = 0;
-    double driveAngleCheckTime = 0;
+    double outBottomSpeed, outTopSpeed, inSpeed, minSpeed;
     ElapsedTime holdTimer = new ElapsedTime();
 
     public void initRobot() {
@@ -98,32 +96,62 @@ public class Tele_Op extends OpMode {
         }
         boolean corrected = false;
         if (Math.abs(gamepad1.right_stick_x) > .2) {
-            // are we turning?  If so, remember our current heading
             x2 = gamepad1.right_stick_x;
-            driveAngle = stampede.angleTracker.getOrientation();
-            driveAngleCheckTime = getRuntime() + 0.25;
+        }
+        if (gamepad1.right_trigger > .4) {
+            outBottomSpeed = 0.43;
+            outTopSpeed = 0.43;
+        } else if (!gamepad1.right_bumper) {
+            outBottomSpeed = 0;
+            outTopSpeed = 0;
+        }
+        if (gamepad1.right_bumper) {
+            outBottomSpeed = 0.6;
+            outTopSpeed = 0.6;
+        } else if (gamepad1.right_trigger < .4) {
+            outBottomSpeed = 0;
+            outTopSpeed = 0;
+        }
 
-        } else if (Math.abs(gamepad1.left_stick_x) > .2 || Math.abs(gamepad1.left_stick_y) > .2 &&
-                getRuntime() > driveAngleCheckTime) {
-            // we aren't turning, but we are moving.  Rotate back to the original heading when we started moving
-            if (Math.abs(stampede.angleDifference(stampede.angleTracker.getOrientation(), driveAngle)) > 0.5) {
-                x2 = stampede.angleDifference(stampede.angleTracker.getOrientation(), driveAngle) / 25;
-                corrected = true;
-            }
-        } else {
-            // we aren't moving at all, note which way we are facing
-            driveAngle = stampede.angleTracker.getOrientation();
-        }
         if (gamepad1.left_trigger > .4) {
-            speedfactor = 0.25;
-        } else if (gamepad1.right_trigger > .2) {
-            speedfactor = 1;
+            inSpeed = 1;
+        } else if (gamepad1.left_trigger < .4) {
+            inSpeed = 0;
         }
-        x1 *= speedfactor;
-        y1 *= speedfactor;
-        x2 *= speedfactor;
+        if (gamepad1.left_bumper) {
+            minSpeed = 1;
+        } else if (!gamepad1.left_bumper) {
+            minSpeed = 0;
+        }
+        if (gamepad1.a) {
+            stampede.limelightPositioning(telemetry);
+        }
+        if (gamepad1.x) {
+            stampede.pusher.setPosition(0);
+        } else {
+            stampede.pusher.setPosition(1);
+        }
+
+        //
+
+
+//Nevin Coded 10/20/20252
+        //if (gamepad1.a) {
+        // stampede.pushert.setPosition(0);
+        //stampede.gate.setPosition(0);
+        // } else {
+        // stampede.pusherb.setPosition(0);
+        //stampede.pushert.setPosition(0.5);
+        //stampede.gate.setPosition(0.5);
+//ng251022}
+
+        x1 *= 0.75;
+        y1 *= 0.75;
+        x2 *= 0.75;
         stampede.drive(y1, x1, x2, telemetry);
+        stampede.driveOther(-inSpeed, -minSpeed, -outBottomSpeed, -outTopSpeed, telemetry);
         telemetry.addData("Autoturning Active", corrected ? "Yes" : "No");
+
 
         stampede.updateFieldPosition();
         stampede.reportTelemetry(telemetry);

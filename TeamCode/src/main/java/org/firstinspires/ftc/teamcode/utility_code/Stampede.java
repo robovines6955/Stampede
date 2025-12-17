@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.utility_code;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
+import static java.lang.Thread.sleep;
 
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -9,6 +12,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoController;
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
@@ -16,6 +21,7 @@ import org.apache.commons.math3.linear.LUDecomposition;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 /**
  * This is NOT an opmode.
@@ -24,13 +30,19 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
  */
 public class Stampede {
     /* Public OpMode members. */
-    public DcMotorEx driveFrontLeft = null;
-    public DcMotorEx driveFrontRight = null;
-    public DcMotorEx driveRearLeft = null;
-    public DcMotorEx driveRearRight = null;
+    public DcMotorEx driveFrontLeft;
+    public DcMotorEx driveFrontRight;
+    public DcMotorEx driveRearLeft;
+    public DcMotorEx driveRearRight;
+    public DcMotorEx intake;
+    public DcMotorEx mintake;
+    public DcMotorEx outtakeTop;
+    public DcMotorEx outtakeBottom;
+    public Servo pusher = null;
     public DcMotorEx odopodLeft = null;
     public DcMotorEx odopodRight = null;
     public DcMotorEx odopodMiddle = null;
+    public Limelight3A limelight;
 
     public SparkFunOTOS otos = null;
 
@@ -165,6 +177,14 @@ public class Stampede {
         hasWheelEncoders = withEncoder;
     }
 
+    public void initOtherHardware(boolean withEncoder) {
+        intake = setUpEncoderMotor("in", DcMotorSimple.Direction.FORWARD, 12, 10, 0.0, 5.0, withEncoder);
+        outtakeBottom = setUpEncoderMotor("ob", DcMotorSimple.Direction.FORWARD, 12, 10, 0.0, 5.0, withEncoder);
+        outtakeTop = setUpEncoderMotor("ot", DcMotorSimple.Direction.FORWARD, 12, 10, 0.0, 5.0, withEncoder);
+        mintake = setUpEncoderMotor("feeder", DcMotorSimple.Direction.FORWARD, 12, 10, 0.0, 5.0, withEncoder);
+        pusher = hwMap.get(Servo.class, "ps");
+    }
+
     /**
      * Initializes the angle tracker (IMU).
      */
@@ -183,6 +203,9 @@ public class Stampede {
 
         // If using wheel encoders pass true, otherwise pass false
         initWheelHardware(true);
+        initOtherHardware(true);
+        limelight = hwMap.get(Limelight3A.class, "limelight");
+        limelight.pipelineSwitch(0);
         // If using odometry pods pass true, otherwise pass false
         if (false) {
             odopodLeft = hwMap.get(DcMotorEx.class, "odoleft");
@@ -213,12 +236,12 @@ public class Stampede {
      * @param turnCW      speed turn [-1, 1]
      * @param telemetry
      */
-    public void drive(double forward, double strafeRight, double turnCW, Telemetry telemetry) {
+    public void drive(double strafeRight, double forward, double turnCW, Telemetry telemetry) {
 
         double speedfr = forward - strafeRight - turnCW;
-        double speedfl = forward + strafeRight + turnCW;
+        double speedfl = forward + strafeRight - turnCW;
         double speedrl = forward - strafeRight + turnCW;
-        double speedrr = forward + strafeRight - turnCW;
+        double speedrr = forward + strafeRight + turnCW;
 
         double max = Math.max(Math.max(Math.abs(speedfl), Math.abs(speedfr)), Math.max(Math.abs(speedrl), Math.abs(speedrr)));
 
@@ -233,6 +256,57 @@ public class Stampede {
         driveRearLeft.setPower(speedrl);
         driveFrontRight.setPower(speedfr);
         driveRearRight.setPower(speedrr);
+    }
+
+    public void driveOther(double inSpeed, double minSpeed, double outBottomSpeed, double outTopSpeed, Telemetry telemetry) {
+        intake.setPower(inSpeed);
+        mintake.setPower(minSpeed);
+        outtakeBottom.setPower(outBottomSpeed);
+        outtakeTop.setPower(outTopSpeed);
+    }
+
+    public void goingFor(long millis) {
+        try {
+            sleep(millis);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void limelightPositioning(Telemetry telemetry) {
+        limelight.start();
+        LLResult result = limelight.getLatestResult();
+        if (result != null) {
+            if (result.isValid()) {
+                Pose3D botpose = result.getBotpose();
+                telemetry.addData("tx", result.getTx());
+                telemetry.addData("ty", result.getTy());
+                telemetry.addData("Botpose", botpose.toString());
+                telemetry.addData("ta", result.getTa());
+                telemetry.update();
+                if (result.getTx() >= 3) {
+                    drive(0, 0, 0.2, telemetry);
+                } else if (result.getTx() <= -1) {
+                    drive(0, 0, -0.2, telemetry);
+                } else if (result.getTx() > -3 && result.getTx() < 3) {
+                    if (result.getTa() <= 0.9) {
+                        drive(0.25, 0, 0, telemetry);
+                    } else if (result.getTa() >= 1.1) {
+                        drive(-0.25, 0, 0, telemetry);
+                    } else if (result.getTa() < 1.1 && result.getTa() > 0.9) {
+                        if (result.getBotpose().getPosition().x >= -0.15) {
+                            drive(0, -0.5, 0, telemetry);
+                        } else if (result.getBotpose().getPosition().x <= -0.3) {
+                            drive(0, 0.5, 0, telemetry);
+                        } else {
+                            drive(0, 0, 0, telemetry);
+
+                            limelight.stop();
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -491,4 +565,4 @@ public class Stampede {
         telemetry.addData("Field Postion", "x: %4.2f, y: %4.2f, heading: %4.2f",
                 xFieldPos, yFieldPos, headingField);
     }
-    }
+}
