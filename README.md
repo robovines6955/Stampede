@@ -19,6 +19,8 @@ To implement Stampede into your code you can fork or clone this repository. You 
 
 If you have OnBot Java, change your branch to stampede-onbot-java and copy the files from there instead.
 
+If you have OnBot Java, change your branch to stampede-onbot-java and copy the files from there instead.
+
 <img align="left" width=348 height=400 src="https://github.com/user-attachments/assets/a71adffd-00ef-47cc-a08b-dec52f076f1a">
 Stampede uses the FTC field coordinate system. Each position that you define is going to be where the center of the robot is on the field (x,y) and where the robot is facing (heading). For example, if the robot is on the field's origin facing the red alliance station, the position would be (0, 0, -90).
 
