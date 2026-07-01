@@ -15,7 +15,7 @@ In Tele_Op we added code to help the robot maintain it's heading if the driver h
 
 ## How to Use Stampede
 
-To implement Stampede into your code you can fork or clone this repository. You can also copy the AutoExample, Tele_Op, AngleTrackerIMU, DriveTo, and Stampede files into your code. The Stampede files are in the [TeamCode area](tree/stampede/TeamCode/src/main/java/org/firstinspires/ftc/teamcode). 
+To implement Stampede into your code you can fork or clone this repository. You can also copy the AutoExample, Tele_Op, AngleTrackerIMU, DriveTo, and Stampede files into your code. The Stampede files are in the [TeamCode area](TeamCode/src/main/java/org/firstinspires/ftc/teamcode). 
 
 If you have OnBot Java, change your branch to stampede-onbot-java and copy the files from there instead.
 
