@@ -207,6 +207,11 @@ For example, this year our robot was much heavier and kept overshooting it's tar
 
 # Release Information
 
+## Version 11.2.1 (20260724-093406)
+
+### Bug Fixes
+* Fixes issue [2099](https://github.com/FIRST-Tech-Challenge/FtcRobotController/issues/2099). Gradle and the AGP are now updated to 9.1 and 8.13.2 respectively.
+ 
 ## Version 11.2 (20260707-102819)
 
 ### Breaking Changes
